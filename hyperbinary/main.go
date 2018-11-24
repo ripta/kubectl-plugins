@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/ripta/kubectl-plugins/pkg/hypercmd"
+	"github.com/ripta/hypercmd/pkg/hypercmd"
 	"github.com/ripta/kubectl-plugins/pkg/ssh"
 
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
