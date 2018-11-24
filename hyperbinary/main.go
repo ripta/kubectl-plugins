@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/ripta/kubectl-plugins/pkg/compat"
 	"github.com/ripta/kubectl-plugins/pkg/hypercmd"
 	"github.com/ripta/kubectl-plugins/pkg/ssh"
 
@@ -23,6 +24,7 @@ func main() {
 
 	cmd := hypercmd.NewCommand()
 	cmd.AddCommand(ssh.NewCommand(s))
+	cmd.AddCommand(compat.NewGeneratorCommand(cmd.Commands))
 
 	if err := cmd.Resolve(os.Args[0], true).Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
