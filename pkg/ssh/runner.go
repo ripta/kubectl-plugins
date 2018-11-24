@@ -73,11 +73,11 @@ func (r *runner) ExecSSH(n v1.Node) error {
 	}
 
 	fmt.Fprintf(os.Stderr, "Connecting to %s (%s)\n", addr, n.Name)
-	args := []string{
-		"ssh",
-		"-l", "core",
-		addr,
+	args := []string{"ssh"}
+	if r.config.Login != "" {
+		args = append(args, "-l", r.config.Login)
 	}
+	args = append(args, addr)
 
 	cmd, err := exec.LookPath("ssh")
 	if err != nil {

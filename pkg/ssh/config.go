@@ -16,6 +16,7 @@ type Config struct {
 	flags *genopts.ConfigFlags
 	args  []string
 
+	Login        string
 	NodeName     string
 	NodeSelector labels.Selector
 

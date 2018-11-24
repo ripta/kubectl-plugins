@@ -2,6 +2,7 @@ package ssh
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 
@@ -23,15 +24,17 @@ var (
 
 // NewCommand initializes an instance of the ssh command.
 func NewCommand(s genopts.IOStreams) *cobra.Command {
+	cfg := newConfig(s)
 	cmd := &cobra.Command{
 		Use:          "kubectl-ssh [flags] [node-name]",
 		Short:        "SSH into a specific Kubernetes node in a cluster or into an arbitrary node matching selectors",
 		Example:      fmt.Sprintf(usage, "kubectl-ssh"),
 		SilenceUsage: true,
 	}
+	cmd.Flags().StringVar(&cfg.Login, "login", os.Getenv("KUBECTL_SSH_DEFAULT_USER"), "Specifies the user to log in as on the remote machine.")
 
 	r := &runner{
-		config: newConfig(s),
+		config: cfg,
 	}
 	return r.Bind(cmd)
 }
