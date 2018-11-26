@@ -16,14 +16,17 @@ import (
 )
 
 var (
+	// ErrNoPreferredAddress is returned when a node has no preferred address.
 	ErrNoPreferredAddress = errors.New("node has no preferred address")
-	ErrNoRoutableAddress  = errors.New("node has no routable address")
+	// ErrNoRoutableAddress is returned when a node has preferred addresses, but none of them routable.
+	ErrNoRoutableAddress = errors.New("node has no routable address")
 )
 
 type runner struct {
 	config *Config
 }
 
+// Bind adds flags to the command and sets the command's run action.
 func (r *runner) Bind(c *cobra.Command) *cobra.Command {
 	if c.RunE != nil {
 		return c
@@ -41,6 +44,8 @@ func (r *runner) Bind(c *cobra.Command) *cobra.Command {
 	return c
 }
 
+// Run is the action that checks for configuration, finds the correct node(s)
+// and executes ssh against one of them.
 func (r *runner) Run(c *cobra.Command, args []string) error {
 	if err := r.config.Complete(c, args); err != nil {
 		return err
@@ -66,6 +71,7 @@ func (r *runner) Run(c *cobra.Command, args []string) error {
 	return r.ExecSSH(node)
 }
 
+// ExecSSH executes an ssh session against the node.
 func (r *runner) ExecSSH(n v1.Node) error {
 	addr, err := getAddressByType(n.Status.Addresses, []v1.NodeAddressType{v1.NodeInternalIP})
 	if err != nil {
@@ -86,6 +92,7 @@ func (r *runner) ExecSSH(n v1.Node) error {
 	return syscall.Exec(cmd, args, os.Environ())
 }
 
+// LoadNodes finds all nodes matching the name or selectors.
 func (r *runner) LoadNodes() ([]v1.Node, error) {
 	cs, err := r.config.Clientset()
 	if err != nil {

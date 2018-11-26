@@ -12,6 +12,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
+// Config holds configuration for kubectl-ssh.
 type Config struct {
 	flags *genopts.ConfigFlags
 	args  []string
@@ -30,6 +31,7 @@ func newConfig(s genopts.IOStreams) *Config {
 	}
 }
 
+// AddFlags decorates the flagset with config flags.
 func (c *Config) AddFlags(flagset *pflag.FlagSet) {
 	c.flags.AddFlags(flagset)
 }
