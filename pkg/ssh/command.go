@@ -31,7 +31,8 @@ func NewCommand(s genopts.IOStreams) *cobra.Command {
 		Example:      fmt.Sprintf(usage, "kubectl-ssh"),
 		SilenceUsage: true,
 	}
-	cmd.Flags().StringVar(&cfg.Login, "login", os.Getenv("KUBECTL_SSH_DEFAULT_USER"), "Specifies the user to log in as on the remote machine.")
+	cmd.Flags().StringVar(&cfg.Login, "login", os.Getenv("KUBECTL_SSH_DEFAULT_USER"),
+		`Specifies the user to log in as on the remote machine (defaults to KUBECTL_SSH_DEFAULT_USER environment)`)
 
 	r := &runner{
 		config: cfg,
