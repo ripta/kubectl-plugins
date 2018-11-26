@@ -37,5 +37,6 @@ func NewCommand(s genopts.IOStreams) *cobra.Command {
 	r := &runner{
 		config: cfg,
 	}
-	return r.Bind(cmd)
+	r.Bind(cmd)
+	return cmd
 }

@@ -27,10 +27,7 @@ type runner struct {
 }
 
 // Bind adds flags to the command and sets the command's run action.
-func (r *runner) Bind(c *cobra.Command) *cobra.Command {
-	if c.RunE != nil {
-		return c
-	}
+func (r *runner) Bind(c *cobra.Command) {
 	c.RunE = r.Run
 
 	// Legacy (kubectl <= 1.11) flag passing
@@ -40,8 +37,6 @@ func (r *runner) Bind(c *cobra.Command) *cobra.Command {
 		WithLabelSelector(legacySelector).
 		AddFlags(c.Flags())
 	r.config.AddFlags(c.Flags())
-
-	return c
 }
 
 // Run is the action that checks for configuration, finds the correct node(s)
@@ -54,7 +49,7 @@ func (r *runner) Run(c *cobra.Command, args []string) error {
 		return err
 	}
 
-	nodes, err := r.LoadNodes()
+	nodes, err := loadNodes(r.config)
 	if err != nil {
 		return err
 	}
@@ -68,11 +63,11 @@ func (r *runner) Run(c *cobra.Command, args []string) error {
 		node = nodes[rand.Intn(len(nodes))]
 	}
 
-	return r.ExecSSH(node)
+	return execSSH(node, r.config.Login)
 }
 
-// ExecSSH executes an ssh session against the node.
-func (r *runner) ExecSSH(n v1.Node) error {
+// execSSH executes an ssh session against the node.
+func execSSH(n v1.Node, login string) error {
 	addr, err := getAddressByType(n.Status.Addresses, []v1.NodeAddressType{v1.NodeInternalIP})
 	if err != nil {
 		return err
@@ -80,8 +75,8 @@ func (r *runner) ExecSSH(n v1.Node) error {
 
 	fmt.Fprintf(os.Stderr, "Connecting to %s (%s)\n", addr, n.Name)
 	args := []string{"ssh"}
-	if r.config.Login != "" {
-		args = append(args, "-l", r.config.Login)
+	if login != "" {
+		args = append(args, "-l", login)
 	}
 	args = append(args, addr)
 
@@ -92,20 +87,20 @@ func (r *runner) ExecSSH(n v1.Node) error {
 	return syscall.Exec(cmd, args, os.Environ())
 }
 
-// LoadNodes finds all nodes matching the name or selectors.
-func (r *runner) LoadNodes() ([]v1.Node, error) {
-	cs, err := r.config.Clientset()
+// loadNodes finds all nodes matching the name or selectors.
+func loadNodes(cfg *Config) ([]v1.Node, error) {
+	cs, err := cfg.Clientset()
 	if err != nil {
 		return nil, err
 	}
 
-	if r.config.NodeName != "" {
-		node, err := cs.CoreV1().Nodes().Get(r.config.NodeName, metav1.GetOptions{})
+	if cfg.NodeName != "" {
+		node, err := cs.CoreV1().Nodes().Get(cfg.NodeName, metav1.GetOptions{})
 		return []v1.Node{*node}, err
 	}
 
 	lopts := metav1.ListOptions{}
-	if sel := r.config.NodeSelector; sel != nil {
+	if sel := cfg.NodeSelector; sel != nil {
 		lopts.LabelSelector = sel.String()
 	}
 
