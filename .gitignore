@@ -1,3 +1,4 @@
 /.vscode
+/bin
 /hypercmd
 /kubectl-ssh
