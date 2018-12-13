@@ -20,7 +20,7 @@ func NewCommand(s genopts.IOStreams) *cobra.Command {
 	k := genopts.NewConfigFlags()
 	m := cmdutil.NewMatchVersionFlags(k)
 	f := cmdutil.NewFactory(m)
-	cmd := get.NewCmdGet("", f, s1)
+	cmd := get.NewCmdGet("", f, s)
 
 	// cfg := newConfig(s)
 	// cmd := &cobra.Command{
