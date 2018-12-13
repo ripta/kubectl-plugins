@@ -39,6 +39,9 @@ required = [
 [[override]]
   name = "k8s.io/kubernetes"
   version = "vKUBEVERSION"
+[[override]]
+  name = "github.com/russross/blackfriday"
+  version = "v1.4"
 
 # These should get set farther below
 # [[override]]
