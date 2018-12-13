@@ -185,10 +185,8 @@ func Convert_v2beta1_ObjectMetricSource_To_autoscaling_ObjectMetricSource(in *au
 }
 
 func Convert_autoscaling_PodsMetricSource_To_v2beta1_PodsMetricSource(in *autoscaling.PodsMetricSource, out *autoscalingv2beta1.PodsMetricSource, s conversion.Scope) error {
-	if in.Target.AverageValue != nil {
-		targetAverageValue := *in.Target.AverageValue
-		out.TargetAverageValue = targetAverageValue
-	}
+	targetAverageValue := *in.Target.AverageValue
+	out.TargetAverageValue = targetAverageValue
 
 	out.MetricName = in.Metric.Name
 	out.Selector = in.Metric.Selector
@@ -249,10 +247,8 @@ func Convert_autoscaling_ObjectMetricStatus_To_v2beta1_ObjectMetricStatus(in *au
 	}
 	out.MetricName = in.Metric.Name
 	out.Selector = in.Metric.Selector
-	if in.Current.AverageValue != nil {
-		currentAverageValue := *in.Current.AverageValue
-		out.AverageValue = &currentAverageValue
-	}
+	currentAverageValue := *in.Current.AverageValue
+	out.AverageValue = &currentAverageValue
 	return nil
 }
 
