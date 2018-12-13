@@ -1,6 +1,6 @@
 # DO NOT MODIFY THIS FILE
 # Change Gopkg.header.toml and then run 'make refresh-pkg' instead
-# Generated Thu Dec 13 01:51:48 PST 2018
+# Generated Thu Dec 13 02:20:15 PST 2018
 
 required = [
   "k8s.io/code-generator/cmd/defaulter-gen",
@@ -24,36 +24,39 @@ required = [
 # Core Kubernetes
 [[override]]
   name = "k8s.io/code-generator"
-  version = "kubernetes-1.12.3"
+  version = "kubernetes-1.12.2"
 [[override]]
   name = "k8s.io/utils"
   branch = "master"
 [[override]]
   name = "k8s.io/client-go"
-  version = "kubernetes-1.12.3"
+  version = "kubernetes-1.12.2"
 [[override]]
   name = "k8s.io/apiserver"
-  version = "kubernetes-1.12.3"
+  version = "kubernetes-1.12.2"
 [[override]]
   name = "k8s.io/metrics"
-  version = "kubernetes-1.12.3"
+  version = "kubernetes-1.12.2"
 [[override]]
   name = "k8s.io/apiextensions-apiserver"
-  version = "kubernetes-1.12.3"
+  version = "kubernetes-1.12.2"
 [[override]]
   name = "k8s.io/kubernetes"
-  version = "v1.12.3"
+  version = "v1.12.2"
+[[override]]
+  name = "github.com/russross/blackfriday"
+  version = "v1.4"
 
 # These should get set farther below
 # [[override]]
 #   name = "k8s.io/apimachinery"
-#   version = "kubernetes-1.12.3"
+#   version = "kubernetes-1.12.2"
 # [[override]]
 #   name = "k8s.io/api"
-#   version = "kubernetes-1.12.3"
+#   version = "kubernetes-1.12.2"
 # [[override]]
 #   name = "k8s.io/kube-openapi"
-#   version = "kubernetes-1.12.3"
+#   version = "kubernetes-1.12.2"
 
 # Godeps.json extracted from client-go
 [[override]]
@@ -154,10 +157,10 @@ required = [
   revision = "670d4cfef0544295bc27a114dbac37980d83185a"
 [[override]]
   name = "k8s.io/api"
-  revision = "b503174bad5991eb66f18247f52e41c3258f6348"
+  revision = "d1dc89ebaebe945edbeff52a79f50c791a59ff87"
 [[override]]
   name = "k8s.io/apimachinery"
-  revision = "eddba98df674a16931d2d4ba75edc3a389bf633a"
+  revision = "f71dbbc36e126f5a371b85f6cca96bc8c57db2b6"
 [[override]]
   name = "k8s.io/kube-openapi"
   revision = "0cf8f7e6ed1d2e3d47d02e3b6e559369af24d803"

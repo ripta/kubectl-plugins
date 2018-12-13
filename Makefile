@@ -4,7 +4,7 @@ ROOT="github.com/ripta/kubectl-plugins"
 CRD_VERSION="v1alpha1"
 CRD_NAME="r8y"
 
-KUBERNETES_VERSION=1.12.3
+KUBERNETES_VERSION=1.12.2
 
 build:
 	go build -v -o bin/kubectl-show github.com/ripta/kubectl-plugins/cmd/kubectl-show

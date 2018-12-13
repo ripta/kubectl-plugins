@@ -82,7 +82,7 @@ make refresh-pkg
 make ensure
 git add Gopkg.* vendor/
 
-make update-codegen
+make update-codegen build
 git add .
 ```
 
