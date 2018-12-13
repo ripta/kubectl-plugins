@@ -75,6 +75,17 @@ function kubectl() {
 }
 ```
 
+## Updating Vendor
+
+```
+make refresh-pkg
+make ensure
+git add Gopkg.* vendor/
+
+make update-codegen
+git add .
+```
+
 ## Contributions
 
 All contributions are welcome. Open a pull request, love 😘
