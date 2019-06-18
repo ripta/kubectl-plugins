@@ -9,9 +9,8 @@ require (
 	github.com/MakeNowJust/heredoc v0.0.0-20171113091838-e9091a26100e
 	github.com/PuerkitoBio/purell v1.1.0
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
-	github.com/Sirupsen/logrus v1.2.0
 	github.com/chai2010/gettext-go v0.0.0-20170215093142-bf70f2a70fb1
-	github.com/davecgh/go-spew v0.0.0-20170626231645-782f4967f2dc
+	github.com/davecgh/go-spew v1.1.1
 	github.com/dgrijalva/jwt-go v0.0.0-20160705203006-01aeca54ebda
 	github.com/docker/distribution v2.7.0+incompatible
 	github.com/docker/docker v1.13.1
@@ -30,7 +29,7 @@ require (
 	github.com/gogo/protobuf v0.0.0-20170330071051-c0656edd0d9e
 	github.com/golang/glog v0.0.0-20141105023935-44145f04b68c
 	github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903
-	github.com/golang/protobuf v1.1.0
+	github.com/golang/protobuf v1.2.0
 	github.com/google/btree v0.0.0-20160524151835-7d79101e329e
 	github.com/google/gofuzz v0.0.0-20161122191042-44d81051d367
 	github.com/googleapis/gnostic v0.0.0-20170729233727-0c5108395e2d
@@ -50,19 +49,20 @@ require (
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/ripta/hypercmd v0.0.0-20181124121757-c30d7dfde338
 	github.com/russross/blackfriday v1.5.2
+	github.com/sirupsen/logrus v1.2.0
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.1
-	golang.org/x/crypto v0.0.0-20180808211826-de0752318171
-	golang.org/x/net v0.0.0-20170809000501-1c05540f6879
+	golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
+	golang.org/x/net v0.0.0-20181005035420-146acd28ed58
 	golang.org/x/oauth2 v0.0.0-20170412232759-a6bd8cefa181
-	golang.org/x/sys v0.0.0-20171031081856-95c657629925
-	golang.org/x/text v0.0.0-20170810154203-b19bf474d317
+	golang.org/x/sys v0.0.0-20180905080454-ebe1bf3edb33
+	golang.org/x/text v0.3.0
 	golang.org/x/time v0.0.0-20161028155119-f51c12702a4d
 	golang.org/x/tools v0.0.0-20181212200058-49db546f375e
 	google.golang.org/appengine v1.3.0
 	gopkg.in/inf.v0 v0.9.0
 	gopkg.in/square/go-jose.v2 v2.2.1
-	gopkg.in/yaml.v2 v2.0.0-20170721113624-670d4cfef054
+	gopkg.in/yaml.v2 v2.2.1
 	k8s.io/api v0.0.0-20181026184759-d1dc89ebaebe
 	k8s.io/apiextensions-apiserver v0.0.0-20181026191334-ba848ee89ca3
 	k8s.io/apimachinery v0.0.0-20181022183627-f71dbbc36e12
