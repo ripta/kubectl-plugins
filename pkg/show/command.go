@@ -1,6 +1,8 @@
 package show
 
 import (
+	"strings"
+
 	"github.com/spf13/cobra"
 
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
@@ -20,16 +22,15 @@ func NewCommand(s genopts.IOStreams) *cobra.Command {
 	k := genopts.NewConfigFlags()
 	m := cmdutil.NewMatchVersionFlags(k)
 	f := cmdutil.NewFactory(m)
+
 	cmd := get.NewCmdGet("", f, s)
+	cmd.Use = "kubectl-show (TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags]"
+	cmd.Example = strings.Replace(cmd.Example, " get ", " show ", -1)
+	cmd.SuggestFor = []string{}
+
+	cmd.Flags().Set("output", "custom-columns")
 
 	// cfg := newConfig(s)
-	// cmd := &cobra.Command{
-	// 	Use:          "kubectl-show [flags] [node-name]",
-	// 	Short:        "Show one or more resources in a customizable format",
-	// 	Example:      fmt.Sprintf(usage, "kubectl-ssh"),
-	// 	SilenceUsage: true,
-	// }
-
 	// r := &runner{
 	// 	config: cfg,
 	// }
