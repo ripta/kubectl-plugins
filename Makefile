@@ -13,6 +13,9 @@ build:
 ensure:
 	dep ensure -v
 
+hyper:
+	go build -v -o bin/ripta-kubectl-plugins ./hyperbinary
+
 refresh-pkg:
 	echo "# DO NOT MODIFY THIS FILE" > Gopkg.toml
 	echo "# Change Gopkg.header.toml and then run 'make refresh-pkg' instead" >> Gopkg.toml
