@@ -7,8 +7,8 @@ CRD_NAME="r8y"
 KUBERNETES_VERSION=1.12.2
 
 build:
-	go build -v -o bin/kubectl-show github.com/ripta/kubectl-plugins/cmd/kubectl-show
-	go build -v -o bin/kubectl-ssh github.com/ripta/kubectl-plugins/cmd/kubectl-ssh
+	go build -v -o bin/kubectl-show ./cmd/kubectl-show
+	go build -v -o bin/kubectl-ssh ./cmd/kubectl-ssh
 
 ensure:
 	dep ensure -v
