@@ -1,6 +1,6 @@
 steps:
   # Building and testing have been combined to allow module cache to be reüsed between steps
-  - name: 'golang:1.12-stretch'
+  - name: 'golang:1.13-stretch'
     env:
       - GO111MODULE=on
     args:
