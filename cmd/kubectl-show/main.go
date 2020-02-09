@@ -12,7 +12,7 @@ import (
 
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
-	"k8s.io/kubernetes/pkg/kubectl/util/logs"
+	"k8s.io/kubectl/pkg/util/logs"
 )
 
 func main() {

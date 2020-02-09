@@ -26,7 +26,7 @@ type Config struct {
 
 func newConfig(s genopts.IOStreams) *Config {
 	return &Config{
-		flags:     genopts.NewConfigFlags(),
+		flags:     genopts.NewConfigFlags(false),
 		IOStreams: s,
 	}
 }

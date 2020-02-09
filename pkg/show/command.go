@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/kubernetes/pkg/kubectl/cmd/get"
-	cmdutil "k8s.io/kubernetes/pkg/kubectl/cmd/util"
+	"k8s.io/kubectl/pkg/cmd/get"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 var (
@@ -19,7 +19,7 @@ var (
 
 // NewCommand initializes an instance of the show command.
 func NewCommand(s genopts.IOStreams) *cobra.Command {
-	k := genopts.NewConfigFlags()
+	k := genopts.NewConfigFlags(false)
 	m := cmdutil.NewMatchVersionFlags(k)
 	f := cmdutil.NewFactory(m)
 
