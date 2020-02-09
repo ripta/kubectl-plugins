@@ -16,8 +16,18 @@ type ShowFormatter struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Columns           []ColumnSpec              `json:"columns,omitempty"`
-	GroupVersionKinds []metav1.GroupVersionKind `json:"groupVersionKinds,omitempty"`
+	Spec ShowFormatterSpec `json:"spec,omitempty"`
+}
+
+type ShowFormatterSpec struct {
+	Aliases  []string                  `json:"aliases,omitempty"`
+	Defaults ShowFormatterDefaultsSpec `json:"defaults,omitempty"`
+	Fields   []FieldSpec               `json:"fields,omitempty"`
+}
+
+type ShowFormatterDefaultsSpec struct {
+	IgnoreUnknownFields bool     `json:"ignoreUnknownFields,omitempty"`
+	SortBy              []string `json:"sortBy`
 }
 
 // +genclient
@@ -34,8 +44,9 @@ type ShowFormatterList struct {
 	Items []ShowFormatter `json:"items"`
 }
 
-// ColumnSpec defines the specification of a column
-type ColumnSpec struct {
-	Label string `json:"label,omitempty"`
-	Spec  string `json:"spec,omitempty"`
+// FieldSpec defines the specification of a column
+type FieldSpec struct {
+	Name     string `json:"name,omitempty"`
+	Label    string `json:"label,omitempty"`
+	JSONPath string `json:"jsonPath,omitempty"`
 }
