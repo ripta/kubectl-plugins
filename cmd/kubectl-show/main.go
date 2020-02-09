@@ -13,6 +13,7 @@ import (
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/kubectl/pkg/util/logs"
+	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
 func main() {
@@ -31,7 +32,11 @@ func main() {
 		Out:    os.Stdout,
 		ErrOut: os.Stderr,
 	}
-	cmd := show.NewCommand(s)
+
+	k := genopts.NewConfigFlags(false)
+	m := cmdutil.NewMatchVersionFlags(k)
+	f := cmdutil.NewFactory(m)
+	cmd := show.NewCommand(f, s)
 
 	if err := cmd.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
