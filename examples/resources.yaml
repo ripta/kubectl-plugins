@@ -1,0 +1,26 @@
+apiVersion: config.k.r8y.dev/v1
+kind: ShowSettings
+metadata:
+  name: resources
+spec:
+  aliases:
+    - resource
+    - res
+    - rsc
+  ignoreUnknownFields: true
+  sortBy:
+    - name
+  fields:
+    - name: name
+      label: 'Name'
+      jsonpath: '.metadata.name'
+    - name: requests
+      label: 'Requests'
+      jsonpath: '.spec.containers[*].resources.requests'
+    - name: limits
+      label: 'Limits'
+      jsonpath: '.spec.containers[*].resources.limits'
+    - name: age
+      label: 'Age'
+      jsonpath: '.metadata.creationTimestamp'
+      formatter: humanizeTimestamp
