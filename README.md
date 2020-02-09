@@ -75,14 +75,11 @@ function kubectl() {
 }
 ```
 
-## Updating Vendor
+## Updating Dependencies
 
 ```
-make refresh-pkg
-make ensure
-git add Gopkg.* vendor/
-
-make update-codegen build
+make update
+make build
 git add .
 ```
 
