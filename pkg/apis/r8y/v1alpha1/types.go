@@ -9,6 +9,14 @@ import (
 // +genclient:noStatus
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
+// ShowConfig ...
+type ShowConfig struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	SearchPaths []string `json:"searchPaths,omitempty"`
+}
+
 // ShowFormatter is the top-level type representing a set of formatter options.
 // +k8s:openapi-gen=true
 // +resource:path=formatter
