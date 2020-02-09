@@ -27,7 +27,7 @@ type ShowFormatterSpec struct {
 
 type ShowFormatterDefaultsSpec struct {
 	IgnoreUnknownFields bool     `json:"ignoreUnknownFields,omitempty"`
-	SortBy              []string `json:"sortBy`
+	SortBy              []string `json:"sortBy"`
 }
 
 // +genclient
@@ -46,7 +46,8 @@ type ShowFormatterList struct {
 
 // FieldSpec defines the specification of a column
 type FieldSpec struct {
-	Name     string `json:"name,omitempty"`
-	Label    string `json:"label,omitempty"`
-	JSONPath string `json:"jsonPath,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Label     string `json:"label,omitempty"`
+	JSONPath  string `json:"jsonPath,omitempty"`
+	Formatter string `json:"formatter,omitempty"`
 }

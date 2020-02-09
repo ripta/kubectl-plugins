@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
@@ -15,23 +14,27 @@ var (
 		Version: "v1alpha1",
 	}
 
-	// SchemeBuilder is a local alias
-	SchemeBuilder      runtime.SchemeBuilder
-	localSchemeBuilder = &SchemeBuilder
-)
+	// GroupInternal is the internal representation
+	GroupInternal = schema.GroupVersion{
+		Group:   r8y.GroupName,
+		Version: runtime.APIVersionInternal,
+	}
 
-func init() {
-	localSchemeBuilder.Register(knownTypes)
-}
+	// SchemeBuilder is a local alias
+	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
+
+	// AddToScheme registers this API group and version to a scheme
+	AddToScheme = SchemeBuilder.AddToScheme
+)
 
 // Resource returns a group-qualified resource given an unqualified one.
 func Resource(rsrc string) schema.GroupResource {
 	return GroupVersion.WithResource(rsrc).GroupResource()
 }
 
-// knownTypes adds the list of package-local types to the runtime scheme.
-func knownTypes(s *runtime.Scheme) error {
+// addKnownTypes adds the list of package-local types to the runtime scheme.
+func addKnownTypes(s *runtime.Scheme) error {
 	s.AddKnownTypes(GroupVersion, &ShowFormatter{}, &ShowFormatterList{})
-	metav1.AddToGroupVersion(s, GroupVersion)
+	s.AddKnownTypes(GroupInternal, &ShowFormatter{}, &ShowFormatterList{})
 	return nil
 }
