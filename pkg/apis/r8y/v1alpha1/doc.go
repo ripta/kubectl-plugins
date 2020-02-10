@@ -1,4 +1,5 @@
 // +k8s:deepcopy-gen=package
-// +groupName=k.r8y.net
+// +k8s:defaulter-gen=TypeMeta
+// +groupName=k.r8y.dev
 
 package v1alpha1

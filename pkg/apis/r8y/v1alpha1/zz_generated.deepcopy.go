@@ -107,7 +107,7 @@ func (in *ShowFormatterDefaultsSpec) DeepCopy() *ShowFormatterDefaultsSpec {
 func (in *ShowFormatterList) DeepCopyInto(out *ShowFormatterList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	in.ObjectMeta.DeepCopyInto(&out.ObjectMeta)
+	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]ShowFormatter, len(*in))
