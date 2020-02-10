@@ -34,7 +34,7 @@ func Resource(rsrc string) schema.GroupResource {
 
 // addKnownTypes adds the list of package-local types to the runtime scheme.
 func addKnownTypes(s *runtime.Scheme) error {
-	s.AddKnownTypes(GroupVersion, &ShowConfig{}, &ShowFormatter{}, &ShowFormatterList{})
-	s.AddKnownTypes(GroupInternal, &ShowConfig{}, &ShowFormatter{}, &ShowFormatterList{})
+	s.AddKnownTypes(GroupVersion, &ShowConfig{}, &ShowFormat{}, &ShowFormatList{})
+	s.AddKnownTypes(GroupInternal, &ShowConfig{}, &ShowFormat{}, &ShowFormatList{})
 	return nil
 }

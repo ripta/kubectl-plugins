@@ -1,5 +1,5 @@
 apiVersion: k.r8y.dev/v1alpha1
-kind: ShowFormatter
+kind: ShowFormat
 metadata:
   name: resources
 spec:
