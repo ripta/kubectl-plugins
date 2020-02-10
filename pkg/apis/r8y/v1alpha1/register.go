@@ -14,12 +14,6 @@ var (
 		Version: "v1alpha1",
 	}
 
-	// GroupInternal is the internal representation
-	GroupInternal = schema.GroupVersion{
-		Group:   r8y.GroupName,
-		Version: runtime.APIVersionInternal,
-	}
-
 	// SchemeBuilder is a local alias
 	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
@@ -35,6 +29,5 @@ func Resource(rsrc string) schema.GroupResource {
 // addKnownTypes adds the list of package-local types to the runtime scheme.
 func addKnownTypes(s *runtime.Scheme) error {
 	s.AddKnownTypes(GroupVersion, &ShowConfig{}, &ShowFormat{}, &ShowFormatList{})
-	s.AddKnownTypes(GroupInternal, &ShowConfig{}, &ShowFormat{}, &ShowFormatList{})
 	return nil
 }

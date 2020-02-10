@@ -29,7 +29,7 @@ func getExtendedPreferences(raw api.Config, name string, sch *runtime.Scheme) (*
 	}
 
 	c := serializer.NewCodecFactory(sch, serializer.DisableStrict)
-	obj, _, err := c.UniversalDecoder().Decode(u.Raw, nil, nil)
+	obj, _, err := c.UniversalDecoder(sch.PrioritizedVersionsAllGroups()...).Decode(u.Raw, nil, nil)
 	if err != nil {
 		return nil, err
 	}
