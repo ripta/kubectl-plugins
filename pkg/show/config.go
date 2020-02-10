@@ -1,13 +1,11 @@
 package show
 
 import (
-	"io/ioutil"
-
 	"github.com/ripta/kubectl-plugins/pkg/apis/r8y/v1alpha1"
+	"github.com/ripta/kubectl-plugins/pkg/formats"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/klog"
@@ -44,10 +42,7 @@ func (o *Options) Complete(f cmdutil.Factory, cmd *cobra.Command, args []string)
 				klog.Infof("extended preferences ShowConfig exists in kubeconfig but could not be parsed: %v", err)
 			}
 			o.ShowConfig = &v1alpha1.ShowConfig{
-				TypeMeta: v1.TypeMeta{
-					Kind:       "",
-					APIVersion: "",
-				},
+				TypeMeta: v1.TypeMeta{},
 				ObjectMeta: v1.ObjectMeta{
 					Name: "Default",
 				},
@@ -97,8 +92,16 @@ func (o *Options) Run(f cmdutil.Factory, cmd *cobra.Command, args []string) erro
 		return err
 	}
 
-	c := serializer.NewCodecFactory(sch, serializer.EnableStrict)
-	return loadFormat(c, "./examples/resources.yaml")
+	if cfg := o.ShowConfig; cfg != nil {
+		fb, err := formats.LoadPaths(sch, cfg.SearchPaths)
+		if err != nil {
+			return err
+		}
+
+		klog.Infof("Format bundle: %+v", fb)
+	}
+
+	return nil
 }
 
 func getScheme() (*runtime.Scheme, error) {
@@ -108,20 +111,4 @@ func getScheme() (*runtime.Scheme, error) {
 	}
 
 	return sch, nil
-}
-
-func loadFormat(c serializer.CodecFactory, file string) error {
-	d, err := ioutil.ReadFile(file)
-	if err != nil {
-		return err
-	}
-
-	obj, gvk, err := c.UniversalDecoder().Decode(d, nil, nil)
-	if err != nil {
-		return err
-	}
-
-	klog.Infof("Got object: %+v", obj)
-	klog.Infof("Got GVK   : %+v", gvk)
-	return nil
 }
