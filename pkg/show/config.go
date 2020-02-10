@@ -5,11 +5,11 @@ import (
 
 	"github.com/ripta/kubectl-plugins/pkg/apis/r8y/v1alpha1"
 	"github.com/spf13/cobra"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/resource"
-	"k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/klog"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
@@ -17,7 +17,7 @@ import (
 type Options struct {
 	genopts.IOStreams
 	resource.FilenameOptions
-	api.Preferences
+	*v1alpha1.ShowConfig
 
 	ChunkSize     int64
 	LabelSelector string
@@ -34,12 +34,31 @@ func (o *Options) Complete(f cmdutil.Factory, cmd *cobra.Command, args []string)
 
 	kcl := f.ToRawKubeConfigLoader()
 	if raw, err := kcl.RawConfig(); err == nil {
-		o.Preferences = raw.Preferences
-
-		v, ok := o.Preferences.Extensions["ShowFormatter"]
-		if ok {
-			klog.Infof("Preferences: %+v", v)
+		sch, err := getScheme()
+		if err != nil {
+			return err
 		}
+
+		if ext, err := getExtendedPreferences(raw, "ShowConfig", sch); err != nil {
+			if err != ErrNoPreferences {
+				klog.Infof("extended preferences ShowConfig exists in kubeconfig but could not be parsed: %v", err)
+			}
+			o.ShowConfig = &v1alpha1.ShowConfig{
+				TypeMeta: v1.TypeMeta{
+					Kind:       "",
+					APIVersion: "",
+				},
+				ObjectMeta: v1.ObjectMeta{
+					Name: "Default",
+				},
+				SearchPaths: []string{
+					"$HOME/.kube/show-formatters",
+				},
+			}
+		} else {
+			o.ShowConfig = ext
+		}
+
 	}
 
 	o.Namespace, o.ExplicitNamespace, err = kcl.Namespace()
@@ -73,21 +92,25 @@ func (o *Options) Run(f cmdutil.Factory, cmd *cobra.Command, args []string) erro
 		return err
 	}
 
-	return loadFormat("./examples/resources.yaml")
-}
-
-func loadFormat(file string) error {
-	s := runtime.NewScheme()
-	if err := v1alpha1.AddToScheme(s); err != nil {
+	sch, err := getScheme()
+	if err != nil {
 		return err
 	}
 
-	for gvk := range s.AllKnownTypes() {
-		klog.Infof("Registered GVK: %+v", gvk)
+	c := serializer.NewCodecFactory(sch, serializer.EnableStrict)
+	return loadFormat(c, "./examples/resources.yaml")
+}
+
+func getScheme() (*runtime.Scheme, error) {
+	sch := runtime.NewScheme()
+	if err := v1alpha1.AddToScheme(sch); err != nil {
+		return nil, err
 	}
 
-	c := serializer.NewCodecFactory(s, serializer.EnableStrict)
+	return sch, nil
+}
 
+func loadFormat(c serializer.CodecFactory, file string) error {
 	d, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
