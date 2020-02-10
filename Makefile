@@ -17,7 +17,7 @@ update: update-deps update-codegen
 
 update-codegen:
 	[ -d $(CODEGEN) ] || git clone -b v0.17.2 https://github.com/kubernetes/code-generator vendor/k8s.io/code-generator
-	$(CODEGEN)/generate-groups.sh deepcopy $(ROOT)/pkg/client $(ROOT)/pkg/apis $(CRD_NAME):$(CRD_VERSION)
+	$(CODEGEN)/generate-groups.sh deepcopy,defaulter $(ROOT)/pkg/client $(ROOT)/pkg/apis $(CRD_NAME):$(CRD_VERSION)
 
 update-deps:
 	go get -u ./...
