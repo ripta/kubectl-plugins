@@ -101,7 +101,8 @@ func (c *CustomPrinter) smartPrint(cs []*gojq.Code, o runtime.Object, w io.Write
 				return err
 			}
 		}
-	} else {
-		return c.printSingle(cs, o, w)
+		return nil
 	}
+
+	return c.printSingle(cs, o, w)
 }
