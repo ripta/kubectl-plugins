@@ -37,6 +37,8 @@ func NewCommand(f cmdutil.Factory, s genopts.IOStreams) *cobra.Command {
 	cmd.Flags().Int64Var(&o.ChunkSize, "chunk-size", o.ChunkSize, "Return large lists in chunks rather than all at once. Pass 0 to disable. This flag is beta and may change in the future.")
 	cmd.Flags().BoolVar(&o.NoHeaders, "no-headers", o.NoHeaders, "Hide headers")
 
+	cmd.Flags().BoolVarP(&o.AllNamespaces, "all-namespaces", "A", o.AllNamespaces, "List the requested objects across all namespaces. The namespace in the current context is ignored.")
+
 	// cmd := get.NewCmdGet("", f, s)
 	// cmd.Use = "kubectl-show (TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags]"
 	// cmd.Example = strings.Replace(cmd.Example, " get ", " show ", -1)

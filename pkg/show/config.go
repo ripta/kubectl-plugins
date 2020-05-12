@@ -1,14 +1,13 @@
 package show
 
 import (
+	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/apis/r8y/v1alpha1"
-	"github.com/ripta/kubectl-plugins/pkg/formats"
 	"github.com/spf13/cobra"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/resource"
-	"k8s.io/klog"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
@@ -39,11 +38,11 @@ func (o *Options) Complete(f cmdutil.Factory, cmd *cobra.Command, args []string)
 
 		if ext, err := getExtendedPreferences(raw, "ShowConfig", sch); err != nil {
 			if err != ErrNoPreferences {
-				klog.Infof("extended preferences ShowConfig exists in kubeconfig but could not be parsed: %v", err)
+				return errors.Wrap(err, "extended preferences ShowConfig exists in kubeconfig but could not be parsed")
 			}
 			o.ShowConfig = &v1alpha1.ShowConfig{
-				TypeMeta: v1.TypeMeta{},
-				ObjectMeta: v1.ObjectMeta{
+				TypeMeta: metav1.TypeMeta{},
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "Default",
 				},
 				SearchPaths: []string{
@@ -53,7 +52,6 @@ func (o *Options) Complete(f cmdutil.Factory, cmd *cobra.Command, args []string)
 		} else {
 			o.ShowConfig = ext
 		}
-
 	}
 
 	o.Namespace, o.ExplicitNamespace, err = kcl.Namespace()
@@ -76,32 +74,7 @@ func (o *Options) Validate(cmd *cobra.Command) error {
 
 // Run performs the get operation.
 func (o *Options) Run(f cmdutil.Factory, cmd *cobra.Command, args []string) error {
-	r := f.NewBuilder().Unstructured().
-		NamespaceParam(o.Namespace).DefaultNamespace().AllNamespaces(o.AllNamespaces).
-		FilenameParam(o.ExplicitNamespace, &o.FilenameOptions).
-		LabelSelector(o.LabelSelector).
-		RequestChunksOf(o.ChunkSize).ResourceTypeOrNameArgs(true, args...).
-		ContinueOnError().Latest().Flatten().
-		Do()
-	if err := r.Err(); err != nil {
-		return err
-	}
-
-	sch, err := getScheme()
-	if err != nil {
-		return err
-	}
-
-	if cfg := o.ShowConfig; cfg != nil {
-		fb, err := formats.LoadPaths(sch, cfg.SearchPaths)
-		if err != nil {
-			return err
-		}
-
-		klog.Infof("Format bundle: %+v", fb)
-	}
-
-	return nil
+	return run(o, f, cmd, args)
 }
 
 func getScheme() (*runtime.Scheme, error) {
