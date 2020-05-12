@@ -5,11 +5,13 @@ import (
 	"io"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/itchyny/gojq"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/duration"
 )
 
 type ColumnDefinition struct {
@@ -53,7 +55,6 @@ func (c *CustomPrinter) PrintObj(o runtime.Object, w io.Writer) error {
 }
 
 func (c *CustomPrinter) printSingle(cs []*gojq.Code, o runtime.Object, w io.Writer) error {
-	cols := make([]string, len(cs))
 	if u, ok := o.(*runtime.Unknown); ok {
 		if len(u.Raw) > 0 {
 			var err error
@@ -63,6 +64,7 @@ func (c *CustomPrinter) printSingle(cs []*gojq.Code, o runtime.Object, w io.Writ
 		}
 	}
 
+	b := NewBlock(len(cs))
 	for i := range cs {
 		var iter gojq.Iter
 		if u, ok := o.(runtime.Unstructured); ok {
@@ -71,7 +73,6 @@ func (c *CustomPrinter) printSingle(cs []*gojq.Code, o runtime.Object, w io.Writ
 			iter = cs[i].Run(reflect.ValueOf(o).Elem().Interface())
 		}
 
-		vs := make([]string, 0)
 		for {
 			v, ok := iter.Next()
 			if !ok {
@@ -80,14 +81,15 @@ func (c *CustomPrinter) printSingle(cs []*gojq.Code, o runtime.Object, w io.Writ
 			if err, ok := v.(error); ok {
 				return errors.Wrapf(err, "rendering single object")
 			}
-			vs = append(vs, fmt.Sprintf("%v", v))
+			if t, ok := v.(time.Time); ok {
+				b.AddTo(i, duration.ShortHumanDuration(time.Since(t)))
+			} else {
+				b.AddTo(i, fmt.Sprintf("%v", v))
+			}
 		}
-
-		cols[i] = strings.Join(vs, ",")
 	}
 
-	fmt.Fprintln(w, strings.Join(cols, "\t"))
-	return nil
+	return b.Render(w, "\t")
 }
 
 func (c *CustomPrinter) smartPrint(cs []*gojq.Code, o runtime.Object, w io.Writer) error {

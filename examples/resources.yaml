@@ -19,13 +19,17 @@ spec:
       label: 'NAME'
       jsonPath: '.metadata.name'
       query: '.metadata.name'
-    - name: limits
-      label: 'LIMITS'
-      jsonPath: '.spec.containers[*].resources.limits'
-      query: '.spec.containers[] | {name: .name} * .resources.limits'
+    - name: container
+      label: 'CONTAINER'
+      query: '.spec.containers[].name'
+    - name: cpu_limit
+      label: 'CPU-LIMIT'
+      query: '.spec.containers[] | .resources.limits.cpu'
+    - name: mem_limit
+      label: 'MEM-LIMIT'
+      query: '.spec.containers[] | .resources.limits.memory'
     - name: age
       label: 'AGE'
-      jsonPath: '.metadata.creationTimestamp'
       query: '.metadata.creationTimestamp'
 
 ## In $KUBECONFIG, add:
