@@ -18,14 +18,15 @@ spec:
     - name: name
       label: 'NAME'
       jsonPath: '.metadata.name'
+      query: '.metadata.name'
     - name: limits
       label: 'LIMITS'
       jsonPath: '.spec.containers[*].resources.limits'
-      formatter: humanizeSize
+      query: '.spec.containers[] | {name: .name} * .resources.limits'
     - name: age
       label: 'AGE'
       jsonPath: '.metadata.creationTimestamp'
-      formatter: humanizeTimestamp
+      query: '.metadata.creationTimestamp'
 
 ## In $KUBECONFIG, add:
 #

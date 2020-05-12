@@ -5,6 +5,7 @@
 package v1alpha1
 
 import (
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -142,6 +143,11 @@ func (in *ShowFormatSpec) DeepCopyInto(out *ShowFormatSpec) {
 	if in.Aliases != nil {
 		in, out := &in.Aliases, &out.Aliases
 		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
+	if in.ComponentKinds != nil {
+		in, out := &in.ComponentKinds, &out.ComponentKinds
+		*out = make([]v1.GroupKind, len(*in))
 		copy(*out, *in)
 	}
 	in.Defaults.DeepCopyInto(&out.Defaults)

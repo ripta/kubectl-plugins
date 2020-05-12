@@ -53,5 +53,6 @@ type FieldSpec struct {
 	Name      string `json:"name,omitempty"`
 	Label     string `json:"label,omitempty"`
 	JSONPath  string `json:"jsonPath,omitempty"`
+	Query     string `json:"query,omitempty"`
 	Formatter string `json:"formatter,omitempty"`
 }
