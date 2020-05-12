@@ -67,9 +67,15 @@ func (fb *FormatBundle) ToPrinter(mapping *meta.RESTMapping) (cliprinters.Resour
 type FormatContainer struct {
 	*v1alpha1.ShowFormat
 	Path string
+
+	prevPrinter cliprinters.ResourcePrinterFunc
 }
 
 func (fc *FormatContainer) ToPrinter() (cliprinters.ResourcePrinterFunc, error) {
+	if fc.prevPrinter != nil {
+		return fc.prevPrinter, nil
+	}
+
 	// Transform ShowFormatter field specifications into custom column formatters
 	cs := make([]printers.ColumnDefinition, len(fc.Spec.Fields))
 	for i := range fc.Spec.Fields {
@@ -105,5 +111,6 @@ func (fc *FormatContainer) ToPrinter() (cliprinters.ResourcePrinterFunc, error) 
 		Decoder:   d,
 		NoHeaders: false,
 	}
+	fc.prevPrinter = ccp.PrintObj
 	return ccp.PrintObj, nil
 }
