@@ -5,12 +5,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/apis/r8y/v1alpha1"
 	"github.com/ripta/kubectl-plugins/pkg/printers"
+	"github.com/ripta/kubectl-plugins/pkg/transformers"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	cliprinters "k8s.io/cli-runtime/pkg/printers"
+	"k8s.io/klog"
 	"k8s.io/kubectl/pkg/scheme"
 )
 
@@ -73,11 +75,11 @@ func (fc *FormatContainer) ToPrinter() (cliprinters.ResourcePrinterFunc, error) 
 	for i := range fc.Spec.Fields {
 		q, err := gojq.Parse(fc.Spec.Fields[i].Query)
 		if err != nil {
-			return nil, errors.Wrapf(err, "query for column %q", fc.Spec.Fields[i].Label)
+			return nil, errors.Wrapf(err, "query for column %q", fc.Spec.Fields[i].Name)
 		}
 		code, err := gojq.Compile(q)
 		if err != nil {
-			return nil, errors.Wrapf(err, "compiling query for column %q", fc.Spec.Fields[i].Label)
+			return nil, errors.Wrapf(err, "compiling query for column %q", fc.Spec.Fields[i].Name)
 		}
 
 		cs[i] = printers.ColumnDefinition{
@@ -85,6 +87,13 @@ func (fc *FormatContainer) ToPrinter() (cliprinters.ResourcePrinterFunc, error) 
 			Query:         fc.Spec.Fields[i].Query,
 			CompiledQuery: code,
 		}
+
+		fn, err := transformers.Lookup(fc.Spec.Fields[i].Transformer)
+		if err != nil {
+			klog.V(1).Infof("no transformer for column %q: %+v", fc.Spec.Fields[i].Name, err)
+			fn = transformers.Identity
+		}
+		cs[i].Transformer = fn
 	}
 
 	// Prevent decoding into internal versions by specifying version parameters

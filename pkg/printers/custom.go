@@ -5,20 +5,20 @@ import (
 	"io"
 	"reflect"
 	"strings"
-	"time"
+
+	"github.com/ripta/kubectl-plugins/pkg/transformers"
 
 	"github.com/itchyny/gojq"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/util/duration"
 )
 
 type ColumnDefinition struct {
 	Header        string
 	Query         string
 	CompiledQuery *gojq.Code
-	Transformer   func(string) string
+	Transformer   transformers.TransformFunc
 }
 
 type CustomPrinter struct {
@@ -69,8 +69,8 @@ func (c *CustomPrinter) printSingle(o runtime.Object, w io.Writer) error {
 			if err, ok := v.(error); ok {
 				return errors.Wrapf(err, "rendering single object")
 			}
-			if t, ok := v.(time.Time); ok {
-				b.AddTo(i, duration.ShortHumanDuration(time.Since(t)))
+			if tr := c.Columns[i].Transformer; tr != nil {
+				b.AddTo(i, tr(v))
 			} else {
 				b.AddTo(i, fmt.Sprintf("%v", v))
 			}

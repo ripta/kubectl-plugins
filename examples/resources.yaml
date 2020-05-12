@@ -31,6 +31,7 @@ spec:
     - name: age
       label: 'AGE'
       query: '.metadata.creationTimestamp'
+      transformer: TimeToHumanDuration
 
 ## In $KUBECONFIG, add:
 #

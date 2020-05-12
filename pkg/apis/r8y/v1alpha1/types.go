@@ -50,9 +50,9 @@ type ShowFormatList struct {
 
 // FieldSpec defines the specification of a column
 type FieldSpec struct {
-	Name      string `json:"name,omitempty"`
-	Label     string `json:"label,omitempty"`
-	JSONPath  string `json:"jsonPath,omitempty"`
-	Query     string `json:"query,omitempty"`
-	Formatter string `json:"formatter,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Label       string `json:"label,omitempty"`
+	JSONPath    string `json:"jsonPath,omitempty"`
+	Query       string `json:"query,omitempty"`
+	Transformer string `json:"transformer,omitempty"`
 }
