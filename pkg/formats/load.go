@@ -8,13 +8,16 @@ import (
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/apis/r8y/v1alpha1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
 )
 
 func LoadPaths(sch *runtime.Scheme, paths []string) (*FormatBundle, error) {
 	fb := &FormatBundle{
-		ByName:  make(map[string]*v1alpha1.ShowFormat),
-		Decoder: serializer.NewCodecFactory(sch, serializer.EnableStrict).UniversalDecoder(sch.PrioritizedVersionsAllGroups()...),
+		ByAlias:     make(map[string][]*FormatContainer),
+		ByName:      make(map[string]*FormatContainer),
+		ByGroupKind: make(map[schema.GroupKind][]*FormatContainer),
+		Decoder:     serializer.NewCodecFactory(sch, serializer.EnableStrict).UniversalDecoder(sch.PrioritizedVersionsAllGroups()...),
 	}
 
 	for _, path := range safeExpand(paths) {
@@ -26,17 +29,14 @@ func LoadPaths(sch *runtime.Scheme, paths []string) (*FormatBundle, error) {
 				return nil
 			}
 
-			sf, err := loadSingle(fb.Decoder, path)
+			fc, err := loadSingle(fb.Decoder, path)
 			if err != nil {
 				return err
 			}
 
-			if _, ok := fb.ByName[sf.GetName()]; ok {
-				return errors.Errorf("found multiple formats named %q", sf.GetName())
+			if err := fb.add(fc); err != nil {
+				return err
 			}
-
-			fb.ByName[sf.GetName()] = sf
-			// TODO(ripta): handle sf.
 			return nil
 		})
 		if err != nil {
@@ -47,7 +47,7 @@ func LoadPaths(sch *runtime.Scheme, paths []string) (*FormatBundle, error) {
 	return fb, nil
 }
 
-func loadSingle(d runtime.Decoder, file string) (*v1alpha1.ShowFormat, error) {
+func loadSingle(d runtime.Decoder, file string) (*FormatContainer, error) {
 	b, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,10 @@ func loadSingle(d runtime.Decoder, file string) (*v1alpha1.ShowFormat, error) {
 	if !ok {
 		return nil, errors.Errorf("could not convert %+v to *v1alpha1.ShowFormat", obj)
 	}
-	return f, nil
+	return &FormatContainer{
+		ShowFormat: f,
+		Path:       file,
+	}, nil
 }
 
 func safeExpand(paths []string) []string {
