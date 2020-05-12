@@ -26,9 +26,10 @@ type ShowFormat struct {
 
 // ShowFormatSpec ...
 type ShowFormatSpec struct {
-	Aliases  []string               `json:"aliases,omitempty"`
-	Defaults ShowFormatDefaultsSpec `json:"defaults,omitempty"`
-	Fields   []FieldSpec            `json:"fields,omitempty"`
+	Aliases        []string               `json:"aliases,omitempty"`
+	ComponentKinds []metav1.GroupKind     `json:"componentKinds,omitempty"`
+	Defaults       ShowFormatDefaultsSpec `json:"defaults,omitempty"`
+	Fields         []FieldSpec            `json:"fields,omitempty"`
 }
 
 // ShowFormatDefaultsSpec ...
