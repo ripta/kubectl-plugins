@@ -1,27 +1,39 @@
 apiVersion: k.r8y.dev/v1alpha1
 kind: ShowFormat
 metadata:
-  name: resources
+  name: f6fc8259-52c2-4e62-857e-33508d7abf67
 spec:
   aliases:
     - resource
+    - resources
     - res
     - rsc
+  componentKinds:
+    - kind: Pod
   defaults:
     ignoreUnknownFields: true
     sortBy:
       - name
   fields:
     - name: name
-      label: 'Name'
+      label: 'NAME'
       jsonPath: '.metadata.name'
-    - name: requests
-      label: 'Requests'
-      jsonPath: '.spec.containers[*].resources.requests'
     - name: limits
-      label: 'Limits'
+      label: 'LIMITS'
       jsonPath: '.spec.containers[*].resources.limits'
+      formatter: humanizeSize
     - name: age
-      label: 'Age'
+      label: 'AGE'
       jsonPath: '.metadata.creationTimestamp'
       formatter: humanizeTimestamp
+
+## In $KUBECONFIG, add:
+#
+# preferences:
+#   extensions:
+#   - extension:
+#       apiVersion: k.r8y.dev/v1alpha1
+#       kind: ShowConfig
+#       searchPaths:
+#       - ./examples
+#     name: ShowConfig
