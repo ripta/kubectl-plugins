@@ -1,6 +1,7 @@
 package formats
 
 import (
+	"github.com/itchyny/gojq"
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/apis/r8y/v1alpha1"
 	"github.com/ripta/kubectl-plugins/pkg/printers"
@@ -70,9 +71,19 @@ func (fc *FormatContainer) ToPrinter() (cliprinters.ResourcePrinterFunc, error) 
 	// Transform ShowFormatter field specifications into custom column formatters
 	cs := make([]printers.ColumnDefinition, len(fc.Spec.Fields))
 	for i := range fc.Spec.Fields {
+		q, err := gojq.Parse(fc.Spec.Fields[i].Query)
+		if err != nil {
+			return nil, errors.Wrapf(err, "query for column %q", fc.Spec.Fields[i].Label)
+		}
+		code, err := gojq.Compile(q)
+		if err != nil {
+			return nil, errors.Wrapf(err, "compiling query for column %q", fc.Spec.Fields[i].Label)
+		}
+
 		cs[i] = printers.ColumnDefinition{
-			Header: fc.Spec.Fields[i].Label,
-			Query:  fc.Spec.Fields[i].Query,
+			Header:        fc.Spec.Fields[i].Label,
+			Query:         fc.Spec.Fields[i].Query,
+			CompiledQuery: code,
 		}
 	}
 
