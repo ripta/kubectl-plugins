@@ -3,13 +3,13 @@ package formats
 import (
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/apis/r8y/v1alpha1"
+	"github.com/ripta/kubectl-plugins/pkg/printers"
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/cli-runtime/pkg/printers"
-	"k8s.io/kubectl/pkg/cmd/get"
+	cliprinters "k8s.io/cli-runtime/pkg/printers"
 	"k8s.io/kubectl/pkg/scheme"
 )
 
@@ -48,7 +48,7 @@ func (fb *FormatBundle) add(fc *FormatContainer) error {
 	return nil
 }
 
-func (fb *FormatBundle) ToPrinter(mapping *meta.RESTMapping) (printers.ResourcePrinterFunc, error) {
+func (fb *FormatBundle) ToPrinter(mapping *meta.RESTMapping) (cliprinters.ResourcePrinterFunc, error) {
 	gk := mapping.GroupVersionKind.GroupKind()
 	of := gk.String()
 	fcs, ok := fb.ByGroupKind[gk]
@@ -66,25 +66,21 @@ type FormatContainer struct {
 	Path string
 }
 
-func (fc *FormatContainer) ToPrinter() (printers.ResourcePrinterFunc, error) {
+func (fc *FormatContainer) ToPrinter() (cliprinters.ResourcePrinterFunc, error) {
 	// Transform ShowFormatter field specifications into custom column formatters
-	cs := make([]get.Column, len(fc.Spec.Fields))
+	cs := make([]printers.ColumnDefinition, len(fc.Spec.Fields))
 	for i := range fc.Spec.Fields {
-		fs, err := get.RelaxedJSONPathExpression(fc.Spec.Fields[i].JSONPath)
-		if err != nil {
-			return nil, errors.Wrapf(err, "error processing path expression for field %q in %q", fc.Spec.Fields[i].Label, fc.Path)
-		}
-		cs[i] = get.Column{
-			Header:    fc.Spec.Fields[i].Label,
-			FieldSpec: fs,
+		cs[i] = printers.ColumnDefinition{
+			Header: fc.Spec.Fields[i].Label,
+			Query:  fc.Spec.Fields[i].Query,
 		}
 	}
 
 	// Prevent decoding into internal versions by specifying version parameters
 	d := scheme.Codecs.UniversalDecoder(scheme.Scheme.PrioritizedVersionsAllGroups()...)
 
-	// Piggy-back onto internal custom column implementation
-	ccp := get.CustomColumnsPrinter{
+	// Piggy-back onto custom column implementation
+	ccp := printers.CustomPrinter{
 		Columns:   cs,
 		Decoder:   d,
 		NoHeaders: false,
