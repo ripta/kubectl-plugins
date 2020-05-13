@@ -17,6 +17,20 @@ To install **all plugins** as separate binaries:
 go install github.com/ripta/kubectl-plugin/cmd/...
 ```
 
+To use the examples included in this repo, add this to the preferences section
+of your Dockerfile:
+
+```
+preferences:
+  extensions:
+    - name: ShowConfig
+      extension:
+        apiVersion: k.r8y.dev/v1alpha1
+        kind: ShowConfig
+        searchPaths:
+          - $PATH_TO_REPO/examples
+```
+
 ## Hyperbinary
 
 All plugins are also available as a single hyperbinary that you can name

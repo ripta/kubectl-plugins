@@ -33,13 +33,3 @@ spec:
       query: '.metadata.creationTimestamp'
       transformer: TimeToHumanDuration
 
-## In $KUBECONFIG, add:
-#
-# preferences:
-#   extensions:
-#   - extension:
-#       apiVersion: k.r8y.dev/v1alpha1
-#       kind: ShowConfig
-#       searchPaths:
-#       - ./examples
-#     name: ShowConfig
