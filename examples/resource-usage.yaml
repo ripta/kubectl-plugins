@@ -13,7 +13,7 @@ spec:
   defaults:
     ignoreUnknownFields: true
     sortBy:
-      - name
+      - name: name
   fields:
     - name: name
       label: 'NAME'
