@@ -12,10 +12,12 @@ func init() {
 }
 
 // TimeToHumanDuration attempts to parse the string as a timestamp.
-func TimeToHumanDuration(v interface{}) string {
-	t, err := time.Parse(time.RFC3339, fmt.Sprintf("%v", v))
-	if err != nil {
-		return fmt.Sprintf("<invalid time: %s>", v)
+func TimeToHumanDuration(params map[string]string) TransformFunc {
+	return func(v interface{}) string {
+		t, err := time.Parse(time.RFC3339, fmt.Sprintf("%v", v))
+		if err != nil {
+			return fmt.Sprintf("<invalid time: %s>", v)
+		}
+		return duration.HumanDuration(time.Since(t))
 	}
-	return duration.HumanDuration(time.Since(t))
 }

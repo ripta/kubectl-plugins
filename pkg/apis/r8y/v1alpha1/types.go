@@ -50,11 +50,11 @@ type ShowFormatList struct {
 
 // FieldSpec defines the specification of a column
 type FieldSpec struct {
-	Name        string `json:"name,omitempty"`
-	Label       string `json:"label,omitempty"`
-	JSONPath    string `json:"jsonPath,omitempty"`
-	Query       string `json:"query,omitempty"`
-	Transformer string `json:"transformer,omitempty"`
+	Name        string           `json:"name,omitempty"`
+	Label       string           `json:"label,omitempty"`
+	JSONPath    string           `json:"jsonPath,omitempty"`
+	Query       string           `json:"query,omitempty"`
+	Transformer *TransformerSpec `json:"transformer,omitempty"`
 }
 
 // SortSpec defines a sort by column name and direction
@@ -67,3 +67,9 @@ const (
 	SortSpecDirectionAscending  = "Ascending"
 	SortSpecDirectionDescending = "Descending"
 )
+
+// TransformerSpec describes and configures any custom transformation for the field
+type TransformerSpec struct {
+	Name   string            `json:"name,omitempty"`
+	Params map[string]string `json:"params,omitempty"`
+}

@@ -4,10 +4,12 @@ import "fmt"
 
 type TransformFunc func(interface{}) string
 
-var registry = make(map[string]TransformFunc)
+type ParameterizedTransformFunc func(params map[string]string) TransformFunc
+
+var registry = make(map[string]ParameterizedTransformFunc)
 
 // Lookup returns a transformation function by name, or an error.
-func Lookup(name string) (TransformFunc, error) {
+func Lookup(name string) (ParameterizedTransformFunc, error) {
 	fn, ok := registry[name]
 	if !ok {
 		names := make([]string, len(registry))

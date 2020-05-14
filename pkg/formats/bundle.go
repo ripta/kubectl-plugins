@@ -94,12 +94,14 @@ func (fc *FormatContainer) ToPrinter() (cliprinters.ResourcePrinterFunc, error) 
 			CompiledQuery: code,
 		}
 
-		fn, err := transformers.Lookup(fc.Spec.Fields[i].Transformer)
-		if err != nil {
-			klog.V(1).Infof("no transformer for column %q: %+v", fc.Spec.Fields[i].Name, err)
-			fn = transformers.Identity
+		if t := fc.Spec.Fields[i].Transformer; t != nil {
+			fn, err := transformers.Lookup(t.Name)
+			if err != nil {
+				klog.V(1).Infof("no transformer for column %q: %+v", fc.Spec.Fields[i].Name, err)
+				fn = transformers.Identity
+			}
+			cs[i].Transformer = fn(t.Params)
 		}
-		cs[i].Transformer = fn
 	}
 
 	// Prevent decoding into internal versions by specifying version parameters
