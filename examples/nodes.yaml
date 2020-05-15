@@ -1,0 +1,38 @@
+apiVersion: k.r8y.dev/v1alpha1
+kind: ShowFormat
+metadata:
+  name: 253fcd51-bbbc-412b-87ec-5684c197e3c9
+spec:
+  aliases:
+    - nodes
+  componentKinds:
+    - kind: Node
+  defaults:
+    ignoreUnknownFields: true
+    sortBy:
+      - name: role
+      - name: ip_address
+  fields:
+    - name: role
+      label: 'ROLE'
+      query: '.metadata.labels["kubernetes.io/role"]'
+    - name: ip_address
+      label: 'IP-ADDRESS'
+      query: '.status.addresses[] | select(.type == "InternalIP").address'
+    - name: instance_id
+      label: 'INSTANCE-ID'
+      query: '.spec.providerID | split("/") | last'
+    - name: status
+      label: 'STATUS'
+      query: '.status.conditions[] | select(.type == "Ready").status'
+    - name: instance_type
+      label: 'INSTANCE-TYPE'
+      query: '.metadata.labels["beta.kubernetes.io/instance-type"]'
+    - name: az
+      label: 'AZ'
+      query: '.metadata.labels["failure-domain.beta.kubernetes.io/zone"]'
+    - name: age
+      label: 'AGE'
+      query: '.metadata.creationTimestamp'
+      transformer:
+        name: TimeToHumanDuration
