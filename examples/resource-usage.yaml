@@ -28,6 +28,12 @@ spec:
     - name: mem_limit
       label: 'MEM-LIMIT'
       query: '.spec.containers[] | .resources.limits.memory'
+    - name: phase
+      label: 'PHASE'
+      query: '.status.phase'
+    - name: restarts
+      label: 'RESTARTS'
+      query: '.status.containerStatuses[] | .restartCount'
     - name: age
       label: 'AGE'
       query: '.metadata.creationTimestamp'
