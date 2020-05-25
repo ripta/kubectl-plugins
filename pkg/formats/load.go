@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/apis/r8y/v1alpha1"
@@ -71,6 +72,7 @@ func loadSingle(d runtime.Decoder, file string) (*FormatContainer, error) {
 func safeExpand(paths []string) []string {
 	sani := []string{}
 	for _, path := range paths {
+		path = strings.Replace(path, "~", "$HOME", 1)
 		d := filepath.Clean(os.ExpandEnv(path))
 		if s, err := os.Stat(d); !os.IsNotExist(err) && s.IsDir() {
 			sani = append(sani, d)
