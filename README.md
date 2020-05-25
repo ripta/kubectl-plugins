@@ -18,7 +18,7 @@ go install github.com/ripta/kubectl-plugin/cmd/...
 ```
 
 To use the examples included in this repo, add this to the preferences section
-of your Dockerfile:
+of your kubeconfig:
 
 ```
 preferences:
