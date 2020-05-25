@@ -39,17 +39,5 @@ func NewCommand(f cmdutil.Factory, s genopts.IOStreams) *cobra.Command {
 
 	cmd.Flags().BoolVarP(&o.AllNamespaces, "all-namespaces", "A", o.AllNamespaces, "List the requested objects across all namespaces. The namespace in the current context is ignored.")
 
-	// cmd := get.NewCmdGet("", f, s)
-	// cmd.Use = "kubectl-show (TYPE[.VERSION][.GROUP] [NAME | -l label] | TYPE[.VERSION][.GROUP]/NAME ...) [flags]"
-	// cmd.Example = strings.Replace(cmd.Example, " get ", " show ", -1)
-	// cmd.SuggestFor = []string{}
-
-	// cmd.Flags().Set("output", "custom-columns")
-
-	// cfg := newConfig(s)
-	// r := &runner{
-	// 	config: cfg,
-	// }
-	// r.Bind(cmd)
 	return cmd
 }
