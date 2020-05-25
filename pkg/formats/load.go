@@ -31,11 +31,11 @@ func LoadPaths(sch *runtime.Scheme, paths []string) (*FormatBundle, error) {
 
 			fc, err := loadSingle(fb.Decoder, path)
 			if err != nil {
-				return err
+				return errors.Wrapf(err, "from path %s", path)
 			}
 
 			if err := fb.add(fc); err != nil {
-				return err
+				return errors.Wrapf(err, "adding format %s to bundle", path)
 			}
 			return nil
 		})
