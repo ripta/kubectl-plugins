@@ -72,11 +72,6 @@ func (o *Options) Validate(cmd *cobra.Command) error {
 	return nil
 }
 
-// Run performs the get operation.
-func (o *Options) Run(f cmdutil.Factory, cmd *cobra.Command, args []string) error {
-	return run(o, f, cmd, args)
-}
-
 func getScheme() (*runtime.Scheme, error) {
 	sch := runtime.NewScheme()
 	if err := v1alpha1.AddToScheme(sch); err != nil {

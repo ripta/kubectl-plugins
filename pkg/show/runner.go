@@ -7,24 +7,30 @@ import (
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/formats"
 	"github.com/ripta/kubectl-plugins/pkg/writers"
-	"github.com/spf13/cobra"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/klog"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
-func run(o *Options, f cmdutil.Factory, cmd *cobra.Command, args []string) error {
+// Run performs the get operation.
+func run(o *Options, f cmdutil.Factory, args []string) error {
 	klog.V(4).Infof("args = %+v, ns = %s", args, o.Namespace)
-	r := f.NewBuilder().Unstructured().
+	b := f.NewBuilder().Unstructured().
 		NamespaceParam(o.Namespace).DefaultNamespace().AllNamespaces(o.AllNamespaces).
 		FilenameParam(o.ExplicitNamespace, &o.FilenameOptions).
 		LabelSelector(o.LabelSelector).
 		RequestChunksOf(o.ChunkSize).ResourceTypeOrNameArgs(true, args...).
-		ContinueOnError().Latest().Flatten().
-		Do()
+		ContinueOnError().Latest().Flatten()
+
+	r := b.Do()
 	if err := r.Err(); err != nil {
-		return errors.Wrap(err, "initializing builder")
+		return errors.Wrap(err, "performing request")
+	}
+
+	cfg := o.ShowConfig
+	if cfg == nil {
+		return errors.New("could not load config for kubectl-show (internal error)")
 	}
 
 	sch, err := getScheme()
@@ -32,22 +38,11 @@ func run(o *Options, f cmdutil.Factory, cmd *cobra.Command, args []string) error
 		return errors.Wrap(err, "getting scheme")
 	}
 
-	cfg := o.ShowConfig
-	if cfg == nil {
-		return errors.New("could not get config for kubectl-show (internal error)")
-	}
-
 	fb, err := formats.LoadPaths(sch, cfg.SearchPaths)
 	if err != nil {
 		return errors.Wrap(err, "loading formats")
 	}
 
-	// klog.V(4).Infof("kubectl-show format bundle: %+v", fb)
-	//
-	// for _, f := range fb.ByName {
-	// 	klog.Infof("Format %s: %+v", f.GetName(), f.Spec)
-	// }
-	//
 	for a, fs := range fb.ByAlias {
 		for i, f := range fs {
 			klog.V(4).Infof("ShowFormat %q: %d %s", a, i, f.GetName())

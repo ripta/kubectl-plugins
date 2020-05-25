@@ -29,7 +29,7 @@ func NewCommand(f cmdutil.Factory, s genopts.IOStreams) *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			cmdutil.CheckErr(o.Complete(f, cmd, args))
 			cmdutil.CheckErr(o.Validate(cmd))
-			cmdutil.CheckErr(o.Run(f, cmd, args))
+			cmdutil.CheckErr(run(o, f, args))
 		},
 		SuggestFor: []string{"sh"},
 	}
