@@ -18,8 +18,9 @@ var (
 // NewCommand initializes an instance of the show command.
 func NewCommand(f cmdutil.Factory, s genopts.IOStreams) *cobra.Command {
 	o := &Options{
-		IOStreams: s,
-		ChunkSize: 500,
+		IOStreams:     s,
+		ChunkSize:     500,
+		OutputFormats: make([]string, 0),
 	}
 
 	cmd := &cobra.Command{
@@ -35,7 +36,9 @@ func NewCommand(f cmdutil.Factory, s genopts.IOStreams) *cobra.Command {
 	}
 
 	cmd.Flags().Int64Var(&o.ChunkSize, "chunk-size", o.ChunkSize, "Return large lists in chunks rather than all at once. Pass 0 to disable. This flag is beta and may change in the future.")
-	cmd.Flags().BoolVar(&o.NoHeaders, "no-headers", o.NoHeaders, "Hide headers")
+	cmd.Flags().BoolVarP(&o.NoHeaders, "no-headers", "H", o.NoHeaders, "Hide headers")
+
+	cmd.Flags().StringSliceVarP(&o.OutputFormats, "output", "o", o.OutputFormats, "Allowed format names")
 
 	cmd.Flags().BoolVarP(&o.AllNamespaces, "all-namespaces", "A", o.AllNamespaces, "List the requested objects across all namespaces. The namespace in the current context is ignored.")
 	cmd.Flags().StringVarP(&o.LabelSelector, "selector", "l", o.LabelSelector, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")

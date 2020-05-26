@@ -19,6 +19,7 @@ type Options struct {
 	ChunkSize     int64
 	LabelSelector string
 	NoHeaders     bool
+	OutputFormats []string
 
 	Namespace         string
 	AllNamespaces     bool
@@ -63,7 +64,6 @@ func (o *Options) Complete(f cmdutil.Factory, cmd *cobra.Command, args []string)
 		o.ExplicitNamespace = false
 	}
 
-	o.NoHeaders = cmdutil.GetFlagBool(cmd, "no-headers")
 	return nil
 }
 

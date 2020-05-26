@@ -60,15 +60,26 @@ func run(o *Options, f cmdutil.Factory, args []string) error {
 	} else {
 		klog.V(4).Infof("retrieved %d resources", len(infos))
 	}
-	return printTo(o.IOStreams.Out, infos, fb)
+
+	fo := formats.Options{
+		NoHeaders: o.NoHeaders,
+	}
+	if o.OutputFormats != nil {
+		fo.AllowedFormats = make(map[string]bool)
+		for i, k := range o.OutputFormats {
+			fo.AllowedFormats[k] = (i == 0)
+		}
+	}
+
+	return printTo(o.IOStreams.Out, fb, infos, fo)
 }
 
-func printTo(w io.Writer, infos []*resource.Info, fb *formats.FormatBundle) error {
+func printTo(w io.Writer, fb *formats.FormatBundle, infos []*resource.Info, opts formats.Options) error {
 	legacyscheme := runtime.NewScheme()
 	t := writers.NewTabular(w)
 	for i := range infos {
 		info := infos[i]
-		printer, err := fb.ToPrinter(info.Mapping)
+		printer, err := fb.ToPrinter(info.Mapping, opts)
 		if err != nil {
 			return errors.Wrapf(err, "retrieving printer for object index #%d of total %d", i, len(infos))
 		}

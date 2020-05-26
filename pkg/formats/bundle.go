@@ -51,9 +51,13 @@ func (fb *FormatBundle) add(fc *FormatContainer) error {
 	return nil
 }
 
-func (fb *FormatBundle) ToPrinter(mapping *meta.RESTMapping) (cliprinters.ResourcePrinterFunc, error) {
+// ToPrinter selects the best resource printer based on GVK and formatting options.
+func (fb *FormatBundle) ToPrinter(mapping *meta.RESTMapping, opts Options) (cliprinters.ResourcePrinterFunc, error) {
 	gk := mapping.GroupVersionKind.GroupKind()
 	of := gk.String()
+
+	// limit to format containers that understand how to print the groupkind in question
+	klog.V(4).Infof("searching for formatter matching %+v", opts.AllowedFormats)
 	fcs, ok := fb.ByGroupKind[gk]
 	if !ok {
 		return nil, genericclioptions.NoCompatiblePrinterError{OutputFormat: &of}
@@ -61,7 +65,18 @@ func (fb *FormatBundle) ToPrinter(mapping *meta.RESTMapping) (cliprinters.Resour
 	if len(fcs) < 1 {
 		return nil, genericclioptions.NoCompatiblePrinterError{OutputFormat: &of}
 	}
-	return fcs[0].ToPrinter()
+
+	// select best format container based on options
+	for i := range fcs {
+		if opts.Allows(fcs[i]) {
+			klog.V(3).Infof("chose output formatter %q", fcs[i].Name)
+			return fcs[i].ToPrinter(opts)
+		}
+	}
+
+	// choose first as default
+	klog.V(4).Info("falling back to default formatter")
+	return fcs[0].ToPrinter(opts)
 }
 
 type FormatContainer struct {
@@ -71,7 +86,7 @@ type FormatContainer struct {
 	prevPrinter cliprinters.ResourcePrinterFunc
 }
 
-func (fc *FormatContainer) ToPrinter() (cliprinters.ResourcePrinterFunc, error) {
+func (fc *FormatContainer) ToPrinter(opts Options) (cliprinters.ResourcePrinterFunc, error) {
 	if fc.prevPrinter != nil {
 		return fc.prevPrinter, nil
 	}
