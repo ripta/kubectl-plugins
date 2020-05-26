@@ -126,7 +126,7 @@ func (fc *FormatContainer) ToPrinter(opts Options) (cliprinters.ResourcePrinterF
 	ccp := printers.CustomPrinter{
 		Columns:   cs,
 		Decoder:   d,
-		NoHeaders: false,
+		NoHeaders: opts.NoHeaders,
 	}
 	fc.prevPrinter = ccp.PrintObj
 	return ccp.PrintObj, nil
