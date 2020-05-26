@@ -53,7 +53,11 @@ func run(o *Options, f cmdutil.Factory, args []string) error {
 		return errors.Wrap(err, "retrieving resource information")
 	}
 
-	klog.V(4).Infof("Asked for %d GVK(s) (multiple=%+v)", len(infos), requestSpansMultipleGVKs(infos))
+	if requestSpansMultipleGVKs(infos) {
+		klog.V(4).Infof("retrieved %d resources spanning multiple GVKs", len(infos))
+	} else {
+		klog.V(4).Infof("retrieved %d resources", len(infos))
+	}
 	return printTo(o.IOStreams.Out, infos, fb)
 }
 
