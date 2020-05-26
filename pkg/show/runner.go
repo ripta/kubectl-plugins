@@ -2,7 +2,6 @@ package show
 
 import (
 	"io"
-	"os"
 
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/formats"
@@ -55,7 +54,7 @@ func run(o *Options, f cmdutil.Factory, args []string) error {
 	}
 
 	klog.V(4).Infof("Asked for %d GVK(s) (multiple=%+v)", len(infos), requestSpansMultipleGVKs(infos))
-	return printTo(os.Stdout, infos, fb)
+	return printTo(o.IOStreams.Out, infos, fb)
 }
 
 func printTo(w io.Writer, infos []*resource.Info, fb *formats.FormatBundle) error {
