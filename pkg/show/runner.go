@@ -76,7 +76,7 @@ func printTo(w io.Writer, fb *formats.FormatBundle, infos []*resource.Info, opts
 		info := infos[i]
 		printer, err := fb.ToPrinter(info.Mapping, opts)
 		if err != nil {
-			return errors.Wrapf(err, "retrieving printer for object index #%d of total %d", i, len(infos))
+			return errors.Wrapf(err, "retrieving printer for object index %d of total %d", i, len(infos))
 		}
 
 		igv := info.Mapping.GroupVersionKind.GroupKind().WithVersion(runtime.APIVersionInternal).GroupVersion()

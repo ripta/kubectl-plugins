@@ -10,7 +10,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/cli-runtime/pkg/genericclioptions"
 	cliprinters "k8s.io/cli-runtime/pkg/printers"
 	"k8s.io/klog"
 	"k8s.io/kubectl/pkg/scheme"
@@ -55,16 +54,21 @@ func (fb *FormatBundle) add(fc *FormatContainer) error {
 // ToPrinter selects the best resource printer based on GVK and formatting options.
 func (fb *FormatBundle) ToPrinter(mapping *meta.RESTMapping, opts Options) (cliprinters.ResourcePrinterFunc, error) {
 	gk := mapping.GroupVersionKind.GroupKind()
-	of := gk.String()
 
 	// limit to format containers that understand how to print the groupkind in question
 	klog.V(4).Infof("searching for formatter matching %+v", opts.AllowedFormats)
 	fcs, ok := fb.ByGroupKind[gk]
 	if !ok {
-		return nil, genericclioptions.NoCompatiblePrinterError{OutputFormat: &of}
+		return nil, NoCompatibleConfigError{
+			GroupKind: gk,
+			Paths:     fb.SearchPaths,
+		}
 	}
 	if len(fcs) < 1 {
-		return nil, genericclioptions.NoCompatiblePrinterError{OutputFormat: &of}
+		return nil, NoCompatibleConfigError{
+			GroupKind: gk,
+			Paths:     fb.SearchPaths,
+		}
 	}
 
 	// select best format container based on options
