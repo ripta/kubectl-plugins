@@ -129,9 +129,10 @@ func (fc *FormatContainer) ToPrinter(opts Options) (cliprinters.ResourcePrinterF
 
 	// Piggy-back onto custom column implementation
 	ccp := printers.CustomPrinter{
-		Columns:   cs,
-		Decoder:   d,
-		NoHeaders: opts.NoHeaders,
+		Columns:       cs,
+		Decoder:       d,
+		NoHeaders:     opts.NoHeaders,
+		IgnoreMissing: fc.Spec.Defaults.IgnoreUnknownFields,
 	}
 	fc.prevPrinter = ccp.PrintObj
 	return ccp.PrintObj, nil

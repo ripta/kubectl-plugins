@@ -22,10 +22,12 @@ type ColumnDefinition struct {
 }
 
 type CustomPrinter struct {
-	Columns   []ColumnDefinition
-	Decoder   runtime.Decoder
-	NoHeaders bool
-	prevType  reflect.Type
+	Columns       []ColumnDefinition
+	Decoder       runtime.Decoder
+	IgnoreMissing bool
+	NoHeaders     bool
+
+	prevType reflect.Type
 }
 
 func (c *CustomPrinter) PrintObj(o runtime.Object, w io.Writer) error {
@@ -67,9 +69,13 @@ func (c *CustomPrinter) printSingle(o runtime.Object, w io.Writer) error {
 				break
 			}
 			if err, ok := v.(error); ok {
-				return errors.Wrapf(err, "rendering single object")
-			}
-			if tr := c.Columns[i].Transformer; tr != nil {
+				if c.IgnoreMissing {
+					b.AddTo(i, "") // missing
+					break
+				} else {
+					return errors.Wrapf(err, "printing value for column %s", c.Columns[i].Header)
+				}
+			} else if tr := c.Columns[i].Transformer; tr != nil {
 				b.AddTo(i, tr(v))
 			} else {
 				b.AddTo(i, fmt.Sprintf("%v", v))
@@ -88,7 +94,7 @@ func (c *CustomPrinter) smartPrint(o runtime.Object, w io.Writer) error {
 		}
 		for i := range els {
 			if err := c.printSingle(els[i], w); err != nil {
-				return err
+				return errors.Wrap(err, "rendering single object")
 			}
 		}
 		return nil

@@ -1,7 +1,9 @@
 package show
 
 import (
+	"fmt"
 	"io"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/formats"
@@ -70,6 +72,8 @@ func run(o *Options, f cmdutil.Factory, args []string) error {
 }
 
 func printTo(w io.Writer, fb *formats.FormatBundle, infos []*resource.Info, opts formats.Options) error {
+	perr := []error{}
+
 	legacyscheme := runtime.NewScheme()
 	t := writers.NewTabular(w)
 	for i := range infos {
@@ -86,9 +90,20 @@ func printTo(w io.Writer, fb *formats.FormatBundle, infos []*resource.Info, opts
 			internal = info.Object
 		}
 
-		printer.PrintObj(internal, t)
+		if err := printer.PrintObj(internal, t); err != nil {
+			perr = append(perr, errors.Wrapf(err, "error printing object index %d of total %d", i, len(infos)))
+		}
+
 	}
 	t.Flush()
+
+	if len(perr) > 0 {
+		serr := make([]string, len(perr))
+		for i := range perr {
+			serr[i] = fmt.Sprintf("  (%d): %v", i, perr[i])
+		}
+		return fmt.Errorf("ran into %d errors while printing output:\n%s", len(perr), strings.Join(serr, "\n"))
+	}
 	return nil
 }
 
