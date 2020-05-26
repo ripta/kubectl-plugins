@@ -19,26 +19,36 @@ spec:
     - name: result
       label: 'RESULT'
       query: |
-        .status.conditions[]
-        | select(.status == "True")
-        | if . == null
-          then "<unknown>"
-          else .type
-          end
+        if .status | has("active")
+        then "Running"
+        else
+          .status.conditions[]
+          | select(.status == "True")
+          | if . == null
+            then "<unknown>"
+            else .type
+            end
+        end
     - name: reason
       label: 'REASON'
       query: |
-        .status.conditions[]
-        | select(.status == "True")
-        | if . != null and has("reason")
-          then .reason
-          else "-"
-          end
+        if .status | has("active")
+        then "-"
+        else
+          .status.conditions[]
+            | select(.status == "True")
+            | if . != null and has("reason")
+              then .reason
+              else "-"
+              end
+        end
     - name: duration
       label: 'DURATION'
       query: |
         .status
-        | if .completionTime == null
+        | if has("active")
+          then now - (.startTime | fromdateiso8601)
+          elif .completionTime == null
           then null
           else (.completionTime | fromdateiso8601) - (.startTime | fromdateiso8601)
           end
