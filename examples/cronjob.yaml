@@ -31,8 +31,8 @@ spec:
               p: .parallelism | tostring | tonumber
             }
           | if .c == 0 and .p == 0
-            then "disabled"
-            else "active"
+            then "Disabled"
+            else "Active"
             end
     - name: last_ran
       label: 'LAST-RAN'
