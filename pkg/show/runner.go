@@ -42,9 +42,11 @@ func run(o *Options, f cmdutil.Factory, args []string) error {
 		return errors.Wrap(err, "loading formats")
 	}
 
-	for a, fs := range fb.ByAlias {
-		for i, f := range fs {
-			klog.V(4).Infof("ShowFormat %q: %d %s", a, i, f.GetName())
+	if klog.V(5) {
+		for a, fs := range fb.ByAlias {
+			for i, f := range fs {
+				klog.Infof("ShowFormat bundle %q: %d %s", a, i, f.GetName())
+			}
 		}
 	}
 
