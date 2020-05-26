@@ -32,7 +32,8 @@ spec:
             }
           | if .c == 0 and .p == 0
             then "disabled"
-            else "active" end
+            else "active"
+            end
     - name: last_ran
       label: 'LAST-RAN'
       query: '.status.lastScheduleTime'

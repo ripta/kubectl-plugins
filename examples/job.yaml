@@ -21,7 +21,8 @@ spec:
       query: |
         .status.conditions[]
         | select(.status == "True")
-        | if . == null then "<unknown>"
+        | if . == null
+          then "<unknown>"
           else .type
           end
     - name: reason
@@ -29,10 +30,18 @@ spec:
       query: |
         .status.conditions[]
         | select(.status == "True")
-        | if . != null and has("reason") then .reason else "-" end
+        | if . != null and has("reason")
+          then .reason
+          else "-"
+          end
     - name: duration
       label: 'DURATION'
-      query: '.status | if .completionTime == null then null else (.completionTime | fromdateiso8601) - (.startTime | fromdateiso8601) end'
+      query: |
+        .status
+        | if .completionTime == null
+          then null
+          else (.completionTime | fromdateiso8601) - (.startTime | fromdateiso8601)
+          end
       transformer:
         name: DurationToHumanDuration
         params:
