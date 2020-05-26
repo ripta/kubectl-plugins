@@ -21,6 +21,7 @@ type FormatBundle struct {
 	ByGroupKind map[schema.GroupKind][]*FormatContainer
 	ByName      map[string]*FormatContainer
 	Decoder     runtime.Decoder
+	SearchPaths []string
 }
 
 func (fb *FormatBundle) add(fc *FormatContainer) error {

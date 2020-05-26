@@ -14,14 +14,21 @@ import (
 )
 
 func LoadPaths(sch *runtime.Scheme, paths []string) (*FormatBundle, error) {
+	cleaned, err := safeExpand(paths)
+	if err != nil {
+		return nil, errors.Wrap(err, "safe expand paths")
+	}
+
 	fb := &FormatBundle{
 		ByAlias:     make(map[string][]*FormatContainer),
 		ByName:      make(map[string]*FormatContainer),
 		ByGroupKind: make(map[schema.GroupKind][]*FormatContainer),
 		Decoder:     serializer.NewCodecFactory(sch, serializer.EnableStrict).UniversalDecoder(sch.PrioritizedVersionsAllGroups()...),
+		SearchPaths: make([]string, 0),
 	}
 
-	for _, path := range safeExpand(paths) {
+	for _, path := range cleaned {
+		fb.SearchPaths = append(fb.SearchPaths, path)
 		err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
@@ -69,14 +76,17 @@ func loadSingle(d runtime.Decoder, file string) (*FormatContainer, error) {
 	}, nil
 }
 
-func safeExpand(paths []string) []string {
+func safeExpand(paths []string) ([]string, error) {
 	sani := []string{}
 	for _, path := range paths {
 		path = strings.Replace(path, "~", "$HOME", 1)
-		d := filepath.Clean(os.ExpandEnv(path))
+		d, err := filepath.Abs(os.ExpandEnv(path))
+		if err != nil {
+			return nil, errors.Wrap(err, "calculating absolute path")
+		}
 		if s, err := os.Stat(d); !os.IsNotExist(err) && s.IsDir() {
 			sani = append(sani, d)
 		}
 	}
-	return sani
+	return sani, nil
 }
