@@ -19,11 +19,13 @@ func LoadPaths(sch *runtime.Scheme, paths []string) (*FormatBundle, error) {
 		return nil, errors.Wrap(err, "safe expand paths")
 	}
 
+	// d := scheme.Codecs.UniversalDecoder(scheme.Scheme.PrioritizedVersionsAllGroups()...)
+	d := serializer.NewCodecFactory(sch, serializer.EnableStrict).UniversalDecoder(sch.PrioritizedVersionsAllGroups()...)
 	fb := &FormatBundle{
 		ByAlias:     make(map[string][]*FormatContainer),
 		ByName:      make(map[string]*FormatContainer),
 		ByGroupKind: make(map[schema.GroupKind][]*FormatContainer),
-		Decoder:     serializer.NewCodecFactory(sch, serializer.EnableStrict).UniversalDecoder(sch.PrioritizedVersionsAllGroups()...),
+
 		SearchPaths: make([]string, 0),
 	}
 
@@ -37,7 +39,7 @@ func LoadPaths(sch *runtime.Scheme, paths []string) (*FormatBundle, error) {
 				return nil
 			}
 
-			fc, err := loadSingle(fb.Decoder, path)
+			fc, err := loadSingle(d, path)
 			if err != nil {
 				return errors.Wrapf(err, "from path %s", path)
 			}
@@ -72,6 +74,7 @@ func loadSingle(d runtime.Decoder, file string) (*FormatContainer, error) {
 	}
 	return &FormatContainer{
 		ShowFormat: f,
+		Decoder:    d,
 		Path:       file,
 	}, nil
 }

@@ -12,14 +12,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	cliprinters "k8s.io/cli-runtime/pkg/printers"
 	"k8s.io/klog"
-	"k8s.io/kubectl/pkg/scheme"
 )
 
 type FormatBundle struct {
 	ByAlias     map[string][]*FormatContainer
 	ByGroupKind map[schema.GroupKind][]*FormatContainer
 	ByName      map[string]*FormatContainer
-	Decoder     runtime.Decoder
 	SearchPaths []string
 }
 
@@ -86,6 +84,8 @@ func (fb *FormatBundle) ToPrinter(mapping *meta.RESTMapping, opts Options) (clip
 
 type FormatContainer struct {
 	*v1alpha1.ShowFormat
+	runtime.Decoder
+
 	Path string
 
 	prevPrinter cliprinters.ResourcePrinterFunc
@@ -124,13 +124,10 @@ func (fc *FormatContainer) ToPrinter(opts Options) (cliprinters.ResourcePrinterF
 		}
 	}
 
-	// Prevent decoding into internal versions by specifying version parameters
-	d := scheme.Codecs.UniversalDecoder(scheme.Scheme.PrioritizedVersionsAllGroups()...)
-
 	// Piggy-back onto custom column implementation
 	ccp := printers.CustomPrinter{
 		Columns:       cs,
-		Decoder:       d,
+		Decoder:       fc.Decoder,
 		NoHeaders:     opts.NoHeaders,
 		IgnoreMissing: fc.Spec.Defaults.IgnoreUnknownFields,
 	}
