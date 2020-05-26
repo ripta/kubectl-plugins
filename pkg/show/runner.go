@@ -27,17 +27,12 @@ func run(o *Options, f cmdutil.Factory, args []string) error {
 		return errors.Wrap(err, "performing request")
 	}
 
-	cfg := o.ShowConfig
-	if cfg == nil {
-		return errors.New("could not load config for kubectl-show (internal error)")
-	}
-
 	sch, err := getScheme()
 	if err != nil {
 		return errors.Wrap(err, "getting scheme")
 	}
 
-	fb, err := formats.LoadPaths(sch, cfg.SearchPaths)
+	fb, err := formats.LoadPaths(sch, o.ShowConfig.SearchPaths)
 	if err != nil {
 		return errors.Wrap(err, "loading formats")
 	}

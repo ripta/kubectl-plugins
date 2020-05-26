@@ -19,6 +19,7 @@ type Options struct {
 	ChunkSize     int64
 	LabelSelector string
 	NoHeaders     bool
+	ListFormats   bool
 	OutputFormats []string
 
 	Namespace         string
