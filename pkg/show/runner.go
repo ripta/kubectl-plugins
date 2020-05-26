@@ -7,7 +7,9 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/ripta/kubectl-plugins/pkg/formats"
+	"github.com/ripta/kubectl-plugins/pkg/utree"
 	"github.com/ripta/kubectl-plugins/pkg/writers"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/klog"
@@ -68,7 +70,34 @@ func run(o *Options, f cmdutil.Factory, args []string) error {
 		}
 	}
 
+	// dumpTo(o.IOStreams.Out, infos)
 	return printTo(o.IOStreams.Out, fb, infos, fo)
+}
+
+func dumpTo(w io.Writer, infos []*resource.Info) {
+	objs := &utree.UnstructuredTree{}
+
+	for i := range infos {
+		info := infos[i]
+		obj := info.Object
+		u, ok := obj.(runtime.Unstructured)
+		if !ok {
+			klog.Infof("object not unstructured: %T", obj)
+			continue
+		}
+
+		qq := unstructured.Unstructured{Object: u.UnstructuredContent()}
+		objs.Add(qq)
+	}
+
+	for _, uj := range objs.Roots() {
+		klog.Infof("%s%s: %s %s", "", uj.GetKind(), uj.GetName(), uj.GetUID())
+		objs.Walk(uj, func(d int, u unstructured.Unstructured) error {
+			klog.Infof("%s %s: %s %s", strings.Repeat("»", d+1), u.GetKind(), u.GetName(), u.GetUID())
+			return nil
+		})
+	}
+
 }
 
 func printTo(w io.Writer, fb *formats.FormatBundle, infos []*resource.Info, opts formats.Options) error {
