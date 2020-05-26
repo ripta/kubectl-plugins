@@ -1,0 +1,47 @@
+apiVersion: k.r8y.dev/v1alpha1
+kind: ShowFormat
+metadata:
+  name: e42dc2e7-9f49-42e7-91c9-c24669da35eb
+spec:
+  aliases:
+    - cj
+    - cronjobs
+    - crons
+    # - jobs
+  componentKinds:
+    - group: batch
+      kind: CronJob
+    # - group: batch
+    #   kind: Job
+  defaults:
+    # ignoreUnknownFields: true
+    sortBy:
+      - name: name
+  fields:
+    - name: name
+      label: 'NAME'
+      query: '.metadata.name'
+    - name: state
+      label: 'STATE'
+      query: |
+        .spec.jobTemplate.spec
+          | {
+              # these fields are int64, which must be double-transformed to be comparable
+              c: .completions | tostring | tonumber,
+              p: .parallelism | tostring | tonumber
+            }
+          | if .c == 0 and .p == 0
+            then "disabled"
+            else "active" end
+    - name: last_ran
+      label: 'LAST-RAN'
+      query: '.status.lastScheduleTime'
+      transformer:
+        name: TimeToHumanDuration
+        params:
+          whenEmpty: '<never>'
+    - name: age
+      label: 'AGE'
+      query: '.metadata.creationTimestamp'
+      transformer:
+        name: TimeToHumanDuration

@@ -1,0 +1,44 @@
+apiVersion: k.r8y.dev/v1alpha1
+kind: ShowFormat
+metadata:
+  name: a98ef895-7474-476e-8a02-d50a8c51290d
+spec:
+  aliases:
+    - jobs
+  componentKinds:
+    - group: batch
+      kind: Job
+  defaults:
+    # ignoreUnknownFields: true
+    sortBy:
+      - name: name
+  fields:
+    - name: name
+      label: 'NAME'
+      query: '.metadata.name'
+    - name: result
+      label: 'RESULT'
+      query: |
+        .status.conditions[]
+        | select(.status == "True")
+        | if . == null then "<unknown>"
+          else .type
+          end
+    - name: reason
+      label: 'REASON'
+      query: |
+        .status.conditions[]
+        | select(.status == "True")
+        | if . != null and has("reason") then .reason else "-" end
+    - name: duration
+      label: 'DURATION'
+      query: '.status | if .completionTime == null then null else (.completionTime | fromdateiso8601) - (.startTime | fromdateiso8601) end'
+      transformer:
+        name: DurationToHumanDuration
+        params:
+          whenEmpty: "<unknown>"
+    - name: age
+      label: 'AGE'
+      query: '.metadata.creationTimestamp'
+      transformer:
+        name: TimeToHumanDuration
