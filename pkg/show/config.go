@@ -46,7 +46,7 @@ func (o *Options) Complete(f cmdutil.Factory, cmd *cobra.Command, args []string)
 					Name: "Default",
 				},
 				SearchPaths: []string{
-					"$HOME/.kube/show-formatters",
+					"$HOME/.kube/show-formats",
 				},
 			}
 		} else {
