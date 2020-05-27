@@ -47,6 +47,7 @@ func NewCommand(f cmdutil.Factory, s genopts.IOStreams) *cobra.Command {
 
 	cmd.Flags().BoolVarP(&o.AllNamespaces, "all-namespaces", "A", o.AllNamespaces, "List the requested objects across all namespaces. The namespace in the current context is ignored.")
 	cmd.Flags().StringVarP(&o.LabelSelector, "selector", "l", o.LabelSelector, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
+	cmd.Flags().BoolVarP(&o.Toposort, "toposort", "t", o.Toposort, "Topologically sort resources by their ownerReferences")
 
 	return cmd
 }

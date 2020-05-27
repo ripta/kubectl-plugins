@@ -20,6 +20,7 @@ type Options struct {
 	LabelSelector string
 	NoHeaders     bool
 	ListFormats   bool
+	Toposort      bool
 	OutputFormats []string
 
 	Namespace         string

@@ -11,6 +11,7 @@ import (
 	"github.com/ripta/kubectl-plugins/pkg/writers"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/cli-runtime/pkg/resource"
 	"k8s.io/klog"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
@@ -70,7 +71,11 @@ func run(o *Options, f cmdutil.Factory, args []string) error {
 		}
 	}
 
-	// dumpTo(o.IOStreams.Out, infos)
+	if o.Toposort {
+		infos = toposort(infos)
+		// fo.NoHeaders = true
+		// dumpTo(o.IOStreams.Out, infos)
+	}
 	return printTo(o.IOStreams.Out, fb, infos, fo)
 }
 
@@ -97,7 +102,38 @@ func dumpTo(w io.Writer, infos []*resource.Info) {
 			return nil
 		})
 	}
+}
 
+func toposort(infos []*resource.Info) []*resource.Info {
+	byUID := make(map[types.UID]*resource.Info, 0)
+	objs := &utree.UnstructuredTree{}
+
+	for i := range infos {
+		info := infos[i]
+		obj := info.Object
+		u, ok := obj.(runtime.Unstructured)
+		if !ok {
+			klog.Infof("object not unstructured: %T", obj)
+			continue
+		}
+
+		qq := unstructured.Unstructured{Object: u.UnstructuredContent()}
+		byUID[qq.GetUID()] = info
+		objs.Add(qq)
+	}
+
+	sorted := make([]*resource.Info, 0, len(infos))
+	for _, uj := range objs.Roots() {
+		sorted = append(sorted, byUID[uj.GetUID()])
+		objs.Walk(uj, func(d int, u unstructured.Unstructured) error {
+			info := byUID[u.GetUID()]
+			u.SetName(strings.Repeat("  ", d) + "└ " + u.GetName())
+			sorted = append(sorted, info)
+			return nil
+		})
+	}
+
+	return sorted
 }
 
 func printTo(w io.Writer, fb *formats.FormatBundle, infos []*resource.Info, opts formats.Options) error {

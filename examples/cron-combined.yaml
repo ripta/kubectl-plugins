@@ -1,0 +1,111 @@
+apiVersion: k.r8y.dev/v1alpha1
+kind: ShowFormat
+metadata:
+  name: cba4efb8-cc0a-452d-a7b4-d5cc960bdd9b
+spec:
+  aliases:
+    - combined
+  componentKinds:
+    - group: batch
+      kind: CronJob
+    - group: batch
+      kind: Job
+    - kind: Pod
+  defaults:
+    ignoreUnknownFields: true
+    sortBy:
+      - name: name
+  fields:
+    - name: name
+      label: 'NAME'
+      query: '.metadata.name'
+    - name: state
+      label: 'STATE'
+      query: |
+        if .kind == "CronJob"
+        then
+          .spec.jobTemplate.spec
+            | {
+                # these fields are int64, which must be double-transformed to be comparable
+                c: .completions | tostring | tonumber,
+                p: .parallelism | tostring | tonumber
+              }
+            | if .c == 0 and .p == 0
+              then "Disabled"
+              else "Active"
+              end
+        else ""
+        end
+    - name: last_ran
+      label: 'LAST-RAN'
+      query: |
+        if .kind == "CronJob"
+        then .status.lastScheduleTime
+        else null
+        end
+      transformer:
+        name: TimeToHumanDuration
+    - name: result
+      label: 'JOB-RESULT'
+      query: |
+        if .kind == "Job"
+        then
+          if .status | has("active")
+          then "Running"
+          else
+            .status.conditions[]
+            | select(.status == "True")
+            | if . == null
+              then "<unknown>"
+              else .type
+              end
+          end
+        else ""
+        end
+    - name: reason
+      label: 'JOB-REASON'
+      query: |
+        if .kind == "Job"
+        then
+          if .status | has("active")
+          then "-"
+          else
+            .status.conditions[]
+              | select(.status == "True")
+              | if . != null and has("reason")
+                then .reason
+                else "-"
+                end
+          end
+        else ""
+        end
+    - name: duration
+      label: 'DURATION'
+      query: |
+        if .kind == "Job"
+        then
+          .status
+          | if has("active")
+            then now - (.startTime | fromdateiso8601)
+            elif .completionTime == null
+            then null
+            else (.completionTime | fromdateiso8601) - (.startTime | fromdateiso8601)
+            end
+        else null
+        end
+      transformer:
+        name: DurationToHumanDuration
+    - name: age
+      label: 'AGE'
+      query: '.metadata.creationTimestamp'
+      transformer:
+        name: TimeToHumanDuration
+    - name: phase
+      label: 'POD-PHASE'
+      query: 'if .status.phase == null then "" else .status.phase end'
+    - name: container_names
+      label: 'CONTAINER'
+      query: '.spec.containers[].name'
+    - name: restarts
+      label: 'RESTARTS'
+      query: '.status.containerStatuses[] | .restartCount'
