@@ -36,10 +36,7 @@ func main() {
 	k := genopts.NewConfigFlags(true)
 	k.AddFlags(pflag.CommandLine)
 
-	m := cmdutil.NewMatchVersionFlags(k)
-	m.AddFlags(pflag.CommandLine)
-
-	f := cmdutil.NewFactory(m)
+	f := cmdutil.NewFactory(k)
 	cmd := show.NewCommand(f, s)
 
 	if err := cmd.Execute(); err != nil {
