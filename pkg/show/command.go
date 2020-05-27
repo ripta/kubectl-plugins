@@ -1,9 +1,14 @@
 package show
 
 import (
+	"fmt"
+
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/client-go/tools/clientcmd/api/latest"
+	"k8s.io/klog"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 	"k8s.io/kubectl/pkg/util/i18n"
 )
@@ -38,6 +43,19 @@ func NewCommand(f cmdutil.Factory, s genopts.IOStreams) *cobra.Command {
 		},
 		SuggestFor: []string{"sh"},
 	}
+
+	ac, err := f.ToRawKubeConfigLoader().ConfigAccess().GetStartingConfig()
+	if err != nil {
+		cmdutil.CheckErr(err)
+	}
+
+	klog.Infof("ConfigAccess: %+v", ac)
+	aco, err := latest.Scheme.ConvertToVersion(ac, latest.ExternalVersion)
+	if err != nil {
+		cmdutil.CheckErr(errors.Wrap(err, "Scheme.ConvertToVersion"))
+	}
+
+	fmt.Printf("%+v\n", aco)
 
 	cmd.Flags().Int64Var(&o.ChunkSize, "chunk-size", o.ChunkSize, "Return large lists in chunks rather than all at once. Pass 0 to disable. This flag is beta and may change in the future.")
 	cmd.Flags().BoolVarP(&o.NoHeaders, "no-headers", "H", o.NoHeaders, "Hide headers")
