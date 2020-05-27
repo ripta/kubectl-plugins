@@ -38,7 +38,7 @@ func (o *Options) Complete(f cmdutil.Factory, cmd *cobra.Command, args []string)
 			return err
 		}
 
-		if ext, err := getExtendedPreferences(raw, "ShowConfig", sch); err != nil {
+		if ext, err := getShowConfigPreferences(raw, sch); err != nil {
 			if err != ErrNoPreferences {
 				return errors.Wrap(err, "extended preferences ShowConfig exists in kubeconfig but could not be parsed")
 			}
