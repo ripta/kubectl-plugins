@@ -1,6 +1,7 @@
 package ssh
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -49,7 +50,7 @@ func (r *runner) Run(c *cobra.Command, args []string) error {
 		return err
 	}
 
-	nodes, err := loadNodes(r.config)
+	nodes, err := loadNodes(c.Context(), r.config)
 	if err != nil {
 		return err
 	}
@@ -88,14 +89,14 @@ func execSSH(n v1.Node, login string) error {
 }
 
 // loadNodes finds all nodes matching the name or selectors.
-func loadNodes(cfg *Config) ([]v1.Node, error) {
+func loadNodes(ctx context.Context, cfg *Config) ([]v1.Node, error) {
 	cs, err := cfg.Clientset()
 	if err != nil {
 		return nil, err
 	}
 
 	if cfg.NodeName != "" {
-		node, err := cs.CoreV1().Nodes().Get(cfg.NodeName, metav1.GetOptions{})
+		node, err := cs.CoreV1().Nodes().Get(ctx, cfg.NodeName, metav1.GetOptions{})
 		return []v1.Node{*node}, err
 	}
 
@@ -104,7 +105,7 @@ func loadNodes(cfg *Config) ([]v1.Node, error) {
 		lopts.LabelSelector = sel.String()
 	}
 
-	nodes, err := cs.CoreV1().Nodes().List(lopts)
+	nodes, err := cs.CoreV1().Nodes().List(ctx, lopts)
 	if err != nil {
 		return nil, err
 	}

@@ -4,8 +4,8 @@ ROOT="github.com/ripta/kubectl-plugins"
 CRD_VERSION="v1alpha1"
 CRD_NAME="r8y"
 
-KUBERNETES_VERSION=1.17.5
-LIBRARY_VERSION=0.17.5
+KUBERNETES_VERSION=1.25.3
+LIBRARY_VERSION=0.25.3
 
 build:
 	go build -v -o bin/kubectl-show ./cmd/kubectl-show
@@ -24,4 +24,4 @@ update-codegen:
 update-deps:
 	go get k8s.io/client-go@v$(LIBRARY_VERSION)
 	go get ./...
-
+	go mod tidy
