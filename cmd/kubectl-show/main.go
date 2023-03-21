@@ -12,8 +12,8 @@ import (
 
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
+	"k8s.io/klog/v2"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
-	"k8s.io/kubectl/pkg/util/logs"
 )
 
 func main() {
@@ -24,8 +24,8 @@ func main() {
 	pflag.CommandLine = pflag.NewFlagSet("kubectl-show", pflag.ExitOnError)
 	pflag.CommandLine.AddGoFlagSet(defaultflag.CommandLine)
 
-	logs.InitLogs()
-	defer logs.FlushLogs()
+	klog.InitFlags(nil)
+	defer klog.Flush()
 
 	s := genopts.IOStreams{
 		In:     os.Stdin,
