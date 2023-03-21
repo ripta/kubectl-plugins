@@ -3,13 +3,13 @@ module github.com/ripta/kubectl-plugins
 go 1.13
 
 require (
-	github.com/itchyny/gojq v0.10.1
+	github.com/itchyny/gojq v0.12.12
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.0.0
 	github.com/ripta/hypercmd v0.0.0-20200525050207-eb5806825d0c
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5
+	github.com/stretchr/testify v1.5.0 // indirect
 	k8s.io/api v0.17.5
 	k8s.io/apimachinery v0.17.5
 	k8s.io/cli-runtime v0.17.5
