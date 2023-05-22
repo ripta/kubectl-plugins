@@ -26,8 +26,8 @@ require (
 	golang.org/x/oauth2 v0.6.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
-	k8s.io/api v0.27.1
-	k8s.io/apimachinery v0.27.1
+	k8s.io/api v0.27.2
+	k8s.io/apimachinery v0.27.2
 	k8s.io/cli-runtime v0.27.1
 	k8s.io/client-go v0.27.1
 	k8s.io/klog v1.0.0
