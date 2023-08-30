@@ -20,12 +20,12 @@ require (
 	github.com/spf13/pflag v1.0.5
 	go.starlark.net v0.0.0-20230612165344-9532f5667272 // indirect
 	golang.org/x/oauth2 v0.9.0 // indirect
-	k8s.io/api v0.28.0
-	k8s.io/apimachinery v0.28.0
-	k8s.io/cli-runtime v0.28.0
-	k8s.io/client-go v0.28.0
+	k8s.io/api v0.28.1
+	k8s.io/apimachinery v0.28.1
+	k8s.io/cli-runtime v0.28.1
+	k8s.io/client-go v0.28.1
 	k8s.io/klog v1.0.0
 	k8s.io/klog/v2 v2.100.1
-	k8s.io/kubectl v0.28.0
+	k8s.io/kubectl v0.28.1
 	k8s.io/utils v0.0.0-20230505201702-9f6742963106 // indirect
 )
