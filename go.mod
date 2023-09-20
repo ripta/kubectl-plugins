@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/emicklei/go-restful/v3 v3.10.2 // indirect
+	github.com/evanphx/json-patch v5.6.0+incompatible // indirect
 	github.com/exponent-io/jsonpath v0.0.0-20210407135951-1de76d718b3f // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
@@ -20,12 +21,12 @@ require (
 	github.com/spf13/pflag v1.0.5
 	go.starlark.net v0.0.0-20230612165344-9532f5667272 // indirect
 	golang.org/x/oauth2 v0.9.0 // indirect
-	k8s.io/api v0.28.1
+	k8s.io/api v0.28.2
 	k8s.io/apimachinery v0.28.2
-	k8s.io/cli-runtime v0.28.1
-	k8s.io/client-go v0.28.1
+	k8s.io/cli-runtime v0.28.2
+	k8s.io/client-go v0.28.2
 	k8s.io/klog v1.0.0
 	k8s.io/klog/v2 v2.100.1
-	k8s.io/kubectl v0.28.1
+	k8s.io/kubectl v0.28.2
 	k8s.io/utils v0.0.0-20230505201702-9f6742963106 // indirect
 )
