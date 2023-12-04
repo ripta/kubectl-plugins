@@ -11,7 +11,7 @@ require (
 	github.com/google/btree v1.1.2 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
-	github.com/itchyny/gojq v0.12.13
+	github.com/itchyny/gojq v0.12.14
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de
 	github.com/moby/term v0.5.0 // indirect
 	github.com/pkg/errors v0.9.1
