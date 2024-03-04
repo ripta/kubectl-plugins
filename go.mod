@@ -1,11 +1,8 @@
 module github.com/ripta/kubectl-plugins
 
-go 1.21
-
-toolchain go1.21.3
+go 1.19
 
 require (
-	github.com/elazarl/goproxy v0.0.0-20231117061959-7cc037d33fb5
 	github.com/itchyny/gojq v0.12.14
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de
 	github.com/pkg/errors v0.9.1
