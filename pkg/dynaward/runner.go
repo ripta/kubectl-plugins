@@ -12,6 +12,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/util/uuid"
 	"k8s.io/client-go/tools/portforward"
 	"k8s.io/client-go/transport/spdy"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
@@ -134,7 +135,7 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 		hdr := http.Header{}
 		hdr.Set(corev1.StreamType, corev1.StreamTypeError)
 		hdr.Set(corev1.PortHeader, strconv.Itoa(portFound))
-		hdr.Set(corev1.PortForwardRequestIDHeader, "1")
+		hdr.Set(corev1.PortForwardRequestIDHeader, string(uuid.NewUUID()))
 
 		estream, err := conn.CreateStream(hdr)
 		if err != nil {
@@ -155,10 +156,6 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 		r2 := r.Clone(ctx)
 		r2.Body.Close()
 
-		//buf := &bytes.Buffer{}
-		//r2.Write(buf)
-		//logger.Info("r2", "request", buf.String())
-
 		if err := r2.Write(dstream); err != nil {
 			http.Error(w, "cannot write request to data stream: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -167,12 +164,6 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 			http.Error(w, "cannot close data stream: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		//logger.Info("r2", "response", r2.Response)
-		//if err := r2.Response.Write(w); err != nil {
-		//	http.Error(w, "cannot write response to data stream: "+err.Error(), http.StatusInternalServerError)
-		//	return
-		//}
 
 		n, err := io.Copy(w, dstream)
 		if err != nil {
