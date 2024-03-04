@@ -5,10 +5,10 @@ and kubectl plugin commands will Just Work™.
 
 ## Installation
 
-To install a specific plugin, e.g., `kubectl-ssh`:
+To install a specific plugin, e.g., `kubectl-dynaward`:
 
 ```
-go install github.com/ripta/kubectl-plugins/cmd/kubectl-ssh
+go install github.com/ripta/kubectl-plugins/cmd/kubectl-dynaward
 ```
 
 To install **all plugins** as separate binaries:
@@ -17,19 +17,53 @@ To install **all plugins** as separate binaries:
 go install github.com/ripta/kubectl-plugin/cmd/...
 ```
 
-To use the examples included in this repo, add this to the preferences section
-of your kubeconfig:
+
+## `kubectl-dynaward`
+
+Dynaward (dynamic port-forward) is an experimental HTTP proxy that allows you
+to refer to `.cluster.local` addresses from outside of the cluster. It relies
+on service names and performs its own mapping to pod names.
+
+There is connection pooling, in that you will only incur lookup and connection
+time for the first request to a hostname.
+
+Routing is based on `Service` names and ports:
 
 ```
-preferences:
-  extensions:
-    - name: ShowConfig
-      extension:
-        apiVersion: k.r8y.dev/v1alpha1
-        kind: ShowConfig
-        searchPaths:
-          - $PATH_TO_REPO/examples
+❯ kubectl -n echo get po
+NAME                          READY   STATUS    RESTARTS   AGE
+echoserver-5ccf76f46b-kmtmg   1/1     Running   0          3d4h
+echoserver-5ccf76f46b-vqjtn   1/1     Running   0          3d4h
+
+❯ kubectl -n echo get svc
+NAME         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+echoserver   ClusterIP   10.52.21.129   <none>        80/TCP    5y54d
 ```
+
+Start up dynaward, which starts a proxy on `localhost:3128` by default:
+
+```
+❯ kubectl dynaward
+{"time":"2024-03-04T01:20:50.628468-08:00","level":"INFO","msg":"Listening","addr":"localhost:3128"}
+```
+
+Then set your HTTP proxy (e.g., by setting `http_proxy` environment variable,
+or by explicitly configuring your HTTP client). On curl, this is `-x`, while on
+apachebench, it's `-X`:
+
+```
+❯ curl -x localhost:3128 echoserver.echo.svc.cluster.local:80
+
+❯ ab -n 100 -c 5 -X localhost:3128 http://echoserver.echo.svc.cluster.local/
+```
+
+using `ab` on macOS, you may need to use `127.0.0.1` instead of `localhost`.
+
+Limitations of dynaward:
+
+1. does not yet detect disappearing pods
+2. does not balance across multiple pods in a service
+3. no control over internals
 
 ## Hyperbinary
 
