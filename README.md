@@ -69,6 +69,7 @@ Limitations of dynaward:
 5. does not technically support custom cluster domains, but because dynaward
    looks at the first two segments of the hostname, it doesn't actually
    validate the cluster domain.
+6. currently HTTP-only, and does not yet support CONNECT.
 
 ## Hyperbinary
 
