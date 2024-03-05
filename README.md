@@ -64,6 +64,12 @@ Limitations of dynaward:
 1. does not yet detect disappearing pods
 2. does not balance across multiple pods in a service
 3. no control over internals
+4. unaware of DNS, so it does not support pod A/AAAA records, pod hostnames, or
+   pod subdomains
+5. does not technically support custom cluster domains, but because dynaward
+   looks at the first two segments of the hostname, it doesn't actually
+   validate the cluster domain.
+6. currently HTTP-only, and does not yet support CONNECT.
 
 ## Hyperbinary
 
