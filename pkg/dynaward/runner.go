@@ -40,6 +40,11 @@ func (o *Options) Run(f cmdutil.Factory) error {
 }
 
 func (o *Options) controlIndex(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
+
 	fwd := ExtractForwardPool(r)
 	fwd.mut.RLock()
 	defer fwd.mut.RUnlock()
