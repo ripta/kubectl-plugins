@@ -10,6 +10,8 @@ import (
 func NewCommand(f cmdutil.Factory, s genericiooptions.IOStreams) *cobra.Command {
 	o := &Options{
 		IOStreams: s,
+		Listen:    "localhost:3128",
+		Verbosity: InfoVerbosityLevel,
 	}
 
 	cmd := &cobra.Command{
@@ -24,5 +26,6 @@ func NewCommand(f cmdutil.Factory, s genericiooptions.IOStreams) *cobra.Command 
 		SuggestFor: []string{"sh"},
 	}
 
+	o.Bind(cmd)
 	return cmd
 }
