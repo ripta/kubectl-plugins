@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -24,9 +25,11 @@ import (
 type ForwardConnection struct {
 	Conn httpstream.Connection
 
+	StartTime   time.Time
 	Namespace   string
 	ServiceName string
 	ServicePort string
+	PodUID      string
 	PodName     string
 	PodPort     int
 }
@@ -92,12 +95,13 @@ func (fwd *ForwardPool) newConnectionFor(ctx context.Context, hostport string) (
 	}
 
 	fc := &ForwardConnection{
+		StartTime:   time.Now(),
 		Namespace:   nsName,
 		ServiceName: svcName,
 		ServicePort: portStr,
 	}
 
-	fwd.Logger.Debug("Routing", "service_name", svcName, "namespace", nsName, "port", portStr)
+	fwd.Logger.Debug("Find service", "service_name", svcName, "namespace", nsName, "port", portStr)
 	svc, err := fwd.Client.CoreV1().Services(nsName).Get(ctx, svcName, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("cannot find service: %w", err)
@@ -135,6 +139,7 @@ func (fwd *ForwardPool) newConnectionFor(ctx context.Context, hostport string) (
 	if targetPod == nil {
 		return nil, fmt.Errorf("did not find a healthy pod matching selector %q", listOpts.LabelSelector)
 	}
+	fc.PodUID = string(targetPod.UID)
 	fc.PodName = targetPod.Name
 
 	pfr := fwd.Client.RESTClient().Post().Prefix("api/v1").Namespace(targetPod.Namespace).Resource("pods").Name(targetPod.Name).SubResource("portforward")
