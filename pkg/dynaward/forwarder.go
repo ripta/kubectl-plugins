@@ -2,7 +2,6 @@ package dynaward
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -41,6 +40,16 @@ type ForwardPool struct {
 
 	cache map[string]*ForwardConnection
 	mut   sync.RWMutex
+}
+
+type forwardPoolContextKey struct{}
+
+func InjectForwardPool(r *http.Request, fwd *ForwardPool) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), forwardPoolContextKey{}, fwd))
+}
+
+func ExtractForwardPool(r *http.Request) *ForwardPool {
+	return r.Context().Value(forwardPoolContextKey{}).(*ForwardPool)
 }
 
 func (fwd *ForwardPool) Close() {
@@ -107,16 +116,17 @@ func (fwd *ForwardPool) newConnectionFor(ctx context.Context, hostport string) (
 		return nil, fmt.Errorf("cannot find service: %w", err)
 	}
 
+	podPort := ""
 	portNum, _ := strconv.Atoi(portStr)
 	for _, svcPort := range svc.Spec.Ports {
 		if svcPort.Name == portStr || int(svcPort.Port) == portNum {
-			fc.PodPort = svcPort.TargetPort.IntValue()
+			podPort = svcPort.TargetPort.String()
 			break
 		}
 	}
 
-	if fc.PodPort == 0 {
-		return nil, errors.New("cannot find port " + portStr + " on service " + hostport)
+	if podPort == "" || podPort == "<nil>" {
+		return nil, fmt.Errorf("service %s in namepsace %s does not have port %s defined", svcName, nsName, portStr)
 	}
 
 	listOpts := metav1.ListOptions{
@@ -141,6 +151,18 @@ func (fwd *ForwardPool) newConnectionFor(ctx context.Context, hostport string) (
 	}
 	fc.PodUID = string(targetPod.UID)
 	fc.PodName = targetPod.Name
+
+	for _, container := range targetPod.Spec.Containers {
+		for _, port := range container.Ports {
+			if port.Name == podPort || strconv.Itoa(int(port.ContainerPort)) == podPort {
+				fc.PodPort = int(port.ContainerPort)
+			}
+		}
+	}
+
+	if fc.PodPort == 0 {
+		return nil, fmt.Errorf("service %s in namespace %s has port %s defined, but does not map to a valid port on any pod matching the service's selectors", svcName, nsName, portStr)
+	}
 
 	pfr := fwd.Client.RESTClient().Post().Prefix("api/v1").Namespace(targetPod.Namespace).Resource("pods").Name(targetPod.Name).SubResource("portforward")
 	rt, up, err := spdy.RoundTripperFor(fwd.Config)

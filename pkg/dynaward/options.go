@@ -15,6 +15,7 @@ type Options struct {
 
 	Listen string
 
+	Control   bool
 	Verbosity VerbosityLevel
 
 	Namespaces        []string
@@ -23,6 +24,7 @@ type Options struct {
 }
 
 func (o *Options) Bind(cmd *cobra.Command) {
+	cmd.PersistentFlags().BoolVarP(&o.Control, "control", "c", o.Control, "Enable control endpoint")
 	cmd.PersistentFlags().StringVarP(&o.Listen, "listen", "L", o.Listen, "Listen IP:port")
 
 	vl := enumflag.New(&o.Verbosity, "verbosity", VerbosityLevelOptions, enumflag.EnumCaseSensitive)
