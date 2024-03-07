@@ -24,13 +24,11 @@ import (
 type ForwardConnection struct {
 	Conn httpstream.Connection
 
-	StartTime   time.Time
-	Namespace   string
-	ServiceName string
-	ServicePort string
-	PodUID      string
-	PodName     string
-	PodPort     int
+	StartTime time.Time
+	Namespace string
+	PodUID    string
+	PodName   string
+	PodPort   int
 }
 
 type ForwardPool struct {
@@ -104,10 +102,8 @@ func (fwd *ForwardPool) newConnectionFor(ctx context.Context, hostport string) (
 	}
 
 	fc := &ForwardConnection{
-		StartTime:   time.Now(),
-		Namespace:   nsName,
-		ServiceName: svcName,
-		ServicePort: portStr,
+		StartTime: time.Now(),
+		Namespace: nsName,
 	}
 
 	fwd.Logger.Debug("Find service", "service_name", svcName, "namespace", nsName, "port", portStr)
