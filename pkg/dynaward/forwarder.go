@@ -38,6 +38,8 @@ type ForwardPool struct {
 
 	cache map[string]*ForwardConnection
 	mut   sync.RWMutex
+
+	tracestore *TraceStore
 }
 
 type forwardPoolContextKey struct{}
