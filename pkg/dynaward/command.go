@@ -23,7 +23,7 @@ func NewCommand(f cmdutil.Factory, s genericiooptions.IOStreams) *cobra.Command 
 			cmdutil.CheckErr(o.Validate(cmd))
 			cmdutil.CheckErr(o.Run(f))
 		},
-		SuggestFor: []string{"sh"},
+		SuggestFor: []string{"dw"},
 	}
 
 	o.Bind(cmd)

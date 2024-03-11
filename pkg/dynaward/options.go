@@ -18,6 +18,8 @@ type Options struct {
 	Control   bool
 	Verbosity VerbosityLevel
 
+	MaxCollectTrace int
+
 	Namespaces        []string
 	AllNamespaces     bool
 	ExplicitNamespace bool
@@ -25,6 +27,7 @@ type Options struct {
 
 func (o *Options) Bind(cmd *cobra.Command) {
 	cmd.PersistentFlags().BoolVarP(&o.Control, "control", "c", o.Control, "Enable control endpoint")
+	cmd.PersistentFlags().IntVarP(&o.MaxCollectTrace, "max-collect-trace", "m", o.MaxCollectTrace, "Maximum number of traces to keep (0 = none)")
 	cmd.PersistentFlags().StringVarP(&o.Listen, "listen", "L", o.Listen, "Listen IP:port")
 
 	vl := enumflag.New(&o.Verbosity, "verbosity", VerbosityLevelOptions, enumflag.EnumCaseSensitive)
