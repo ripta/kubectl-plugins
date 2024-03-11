@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math/rand"
 	"net"
 	"net/http"
 	"strconv"
@@ -134,6 +135,10 @@ func (fwd *ForwardPool) newConnectionFor(ctx context.Context, hostport string) (
 	if err != nil {
 		return nil, fmt.Errorf("cannot list pods: %w", err)
 	}
+
+	rand.Shuffle(len(pl.Items), func(i, j int) {
+		pl.Items[i], pl.Items[j] = pl.Items[j], pl.Items[i]
+	})
 
 	var targetPod *corev1.Pod
 	for _, pod := range pl.Items {
