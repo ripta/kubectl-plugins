@@ -5,7 +5,9 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -49,10 +51,56 @@ func (o *Options) controlIndex(w http.ResponseWriter, r *http.Request) {
 	fwd.mut.RLock()
 	defer fwd.mut.RUnlock()
 
-	fmt.Fprintf(w, "[ %d active port-forwards ]\n", len(fwd.cache))
+	fmt.Fprint(w, "<!DOCTYPE html>\n")
+	fmt.Fprint(w, "<html><body>\n")
+
+	fmt.Fprintf(w, "<strong>%d active port-forwards</strong><br>\n", len(fwd.cache))
+	fmt.Fprint(w, "<ul>\n")
 	for host, fc := range fwd.cache {
-		fmt.Fprintf(w, "%s -> %s/%s:%d\n", host, fc.Namespace, fc.PodName, fc.PodPort)
+		fmt.Fprintf(w, "<li>%s -> %s/%s:%d</li>\n", host, fc.Namespace, fc.PodName, fc.PodPort)
 	}
+	fmt.Fprint(w, "</ul>\n")
+
+	traces := fwd.tracestore.List()
+	sort.Strings(traces)
+	fmt.Fprintf(w, "<strong>%d traces (%s)</strong><br>\n", len(traces), `<a href="/traces/clear">clear</a>`)
+	fmt.Fprint(w, "<ul>\n")
+	for _, id := range traces {
+		trace := fwd.tracestore.Get(id)
+		fmt.Fprintf(w, `<li><a href="/traces/%s">%s</a>: %d bytes request, %d bytes response</li>`, id, id, trace.Request.Len(), trace.Response.Len())
+	}
+	fmt.Fprint(w, "</ul>\n")
+}
+
+func (o *Options) controlClearTrace(w http.ResponseWriter, r *http.Request) {
+	fwd := ExtractForwardPool(r)
+	fwd.mut.RLock()
+	defer fwd.mut.RUnlock()
+
+	fwd.tracestore.Clear()
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func (o *Options) controlViewTrace(w http.ResponseWriter, r *http.Request) {
+	id, ok := strings.CutPrefix(r.URL.Path, "/traces/")
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	fwd := ExtractForwardPool(r)
+	fwd.mut.RLock()
+	defer fwd.mut.RUnlock()
+
+	trace := fwd.tracestore.Get(id)
+	if trace == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	fmt.Fprintf(w, "Request:\n%s\n\n", trace.Request)
+	fmt.Fprintf(w, "---\n\n")
+	fmt.Fprintf(w, "Response:\n%s\n\n", trace.Response)
 }
 
 func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.HandlerFunc, func(), error) {
@@ -67,16 +115,19 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 	}
 
 	fwd := &ForwardPool{
-		Client: kc,
-		Config: rc,
-		Logger: logger,
-		cache:  map[string]*ForwardConnection{},
-		mut:    sync.RWMutex{},
+		Client:     kc,
+		Config:     rc,
+		Logger:     logger,
+		cache:      map[string]*ForwardConnection{},
+		mut:        sync.RWMutex{},
+		tracestore: NewTraceStore(20),
 	}
 
 	ctrl := http.NewServeMux()
 	ctrl.HandleFunc("/", o.controlIndex)
 	ctrl.HandleFunc("/favicon.ico", http.NotFound)
+	ctrl.HandleFunc("/traces/", o.controlViewTrace)
+	ctrl.HandleFunc("/traces/clear", o.controlClearTrace)
 
 	hnd := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
@@ -110,10 +161,11 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 
 		logger.Info("Routing", "host", r.Host, "pod_namespace", fc.Namespace, "pod_name", fc.PodName, "pod_port", fc.PodPort)
 
+		id := string(uuid.NewUUID())
 		hdr := http.Header{}
 		hdr.Set(corev1.StreamType, corev1.StreamTypeError)
 		hdr.Set(corev1.PortHeader, strconv.Itoa(fc.PodPort))
-		hdr.Set(corev1.PortForwardRequestIDHeader, string(uuid.NewUUID()))
+		hdr.Set(corev1.PortForwardRequestIDHeader, id)
 
 		estream, err := fc.Conn.CreateStream(hdr)
 		if err != nil {
@@ -136,7 +188,14 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 		r2 := r.Clone(ctx)
 		_ = r2.Body.Close()
 
-		if err := r2.Write(dstream); err != nil {
+		trace := NewRoundTripTrace()
+		trace.Host = r.Host
+		fwd.tracestore.Add(id, trace)
+
+		outbound := io.MultiWriter(dstream, trace.Request)
+		inbound := io.MultiWriter(w, trace.Response)
+
+		if err := r2.Write(outbound); err != nil {
 			logger.Error("cannot write request to data stream: "+err.Error(), "path", r.URL.Path, "host", r.Host)
 			http.Error(w, "cannot write request to data stream: "+err.Error(), http.StatusInternalServerError)
 			return
@@ -147,7 +206,7 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 			return
 		}
 
-		n, err := io.Copy(w, dstream)
+		n, err := io.Copy(inbound, dstream)
 		if err != nil {
 			logger.Error("cannot copy response from data stream: "+err.Error(), "path", r.URL.Path, "host", r.Host)
 			http.Error(w, "cannot copy response from data stream: "+err.Error(), http.StatusInternalServerError)
