@@ -129,6 +129,11 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 	ctrl.HandleFunc("/traces/", o.controlViewTrace)
 	ctrl.HandleFunc("/traces/clear", o.controlClearTrace)
 
+	ch := connectHandler{
+		logger: logger,
+		fwd:    fwd,
+	}
+
 	hnd := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		t0 := time.Now()
@@ -147,8 +152,7 @@ func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.Handle
 		logger.Info("Received proxy request", "path", r.URL.Path, "host", r.Host, "method", r.Method, "url", r.URL.String())
 
 		if r.Method == http.MethodConnect {
-			logger.Error("This proxy does not support 'CONNECT' yet", "path", r.URL.Path, "host", r.Host)
-			http.Error(w, "This proxy does not support 'CONNECT' yet", http.StatusMethodNotAllowed)
+			ch.Handle(w, r)
 			return
 		}
 
