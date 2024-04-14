@@ -15,7 +15,7 @@ func NewCommand(f cmdutil.Factory, s genericiooptions.IOStreams) *cobra.Command 
 	}
 
 	cmd := &cobra.Command{
-		Use:                   "kubectl-dynaward [ -A ]",
+		Use:                   "kubectl-dynaward [ opts... ]",
 		DisableFlagsInUseLine: true,
 		Short:                 i18n.T("Dynamically port-forward into the cluster"),
 		Run: func(cmd *cobra.Command, args []string) {
