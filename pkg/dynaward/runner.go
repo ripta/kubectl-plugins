@@ -98,6 +98,9 @@ func (o *Options) controlViewTrace(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(200)
+
 	fmt.Fprintf(w, "Request:\n%s\n\n", trace.Request)
 	fmt.Fprintf(w, "---\n\n")
 	fmt.Fprintf(w, "Response:\n%s\n\n", trace.Response)
