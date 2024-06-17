@@ -9,7 +9,7 @@ require (
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de
 	github.com/pkg/errors v0.9.1
 	github.com/ripta/hypercmd v0.0.0-20230410012023-96d659a8aed9
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/thediveo/enumflag/v2 v2.0.5
 	k8s.io/api v0.29.3
