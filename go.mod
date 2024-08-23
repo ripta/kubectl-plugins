@@ -1,8 +1,6 @@
 module github.com/ripta/kubectl-plugins
 
-go 1.21
-
-toolchain go1.21.3
+go 1.22
 
 require (
 	github.com/itchyny/gojq v0.12.16
