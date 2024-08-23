@@ -1,6 +1,6 @@
 steps:
   # Building and testing have been combined to allow module cache to be reüsed between steps
-  - name: 'golang:1.21-bullseye'
+  - name: 'golang:1.22-bookworm'
     args:
       - bash
       - -c
