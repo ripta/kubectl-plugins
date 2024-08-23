@@ -11,6 +11,7 @@ import (
 	"github.com/ripta/kubectl-plugins/pkg/ssh"
 
 	genopts "k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/cli-runtime/pkg/genericiooptions"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
@@ -18,25 +19,31 @@ import (
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	cmd := hypercmd.NewCommand()
-	s := genopts.IOStreams{
+	cmd := hypercmd.New("kp")
+	s := genericiooptions.IOStreams{
 		In:     os.Stdin,
 		Out:    os.Stdout,
 		ErrOut: os.Stderr,
 	}
 
 	k := genopts.NewConfigFlags(true)
-	k.AddFlags(cmd.Flags())
+	k.AddFlags(cmd.Root().Flags())
 
 	m := cmdutil.NewMatchVersionFlags(k)
-	m.AddFlags(cmd.Flags())
+	m.AddFlags(cmd.Root().Flags())
 
 	f := cmdutil.NewFactory(m)
 
 	cmd.AddCommand(ssh.NewCommand(s))
 	cmd.AddCommand(show.NewCommand(f, s))
 
-	if err := cmd.Resolve(os.Args[0], true).Execute(); err != nil {
+	sub, err := cmd.Resolve(os.Args, true)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := sub.Execute(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
