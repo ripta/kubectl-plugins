@@ -24,7 +24,7 @@ func listFormats(o *Options) error {
 
 	t := writers.NewTabular(o.IOStreams.Out)
 	headers := []string{"NAME", "GVK", "PATH"}
-	fmt.Fprintf(t, strings.Join(headers, "\t")+"\n")
+	fmt.Fprint(t, strings.Join(headers, "\t")+"\n")
 
 	for _, fcs := range fb.ByGroupKind {
 		for _, fc := range fcs {
@@ -33,7 +33,7 @@ func listFormats(o *Options) error {
 				fc.Spec.ComponentKinds[0].String(),
 				fc.Path,
 			}
-			fmt.Fprintf(t, strings.Join(fields, "\t")+"\n")
+			fmt.Fprint(t, strings.Join(fields, "\t")+"\n")
 		}
 	}
 
