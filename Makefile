@@ -13,7 +13,7 @@ build:
 	go build -v -o bin/kubectl-ssh ./cmd/kubectl-ssh
 
 hyper:
-	go build -v -o bin/ripta-kubectl-plugins ./hyperbinary
+	go build -v -o bin/kp ./hypercmd/kp
 
 update: update-deps update-codegen
 

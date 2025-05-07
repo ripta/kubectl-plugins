@@ -1,6 +1,5 @@
 /.idea
 /.vscode
 /bin
-/hypercmd
 /kubectl-ssh
 /vendor/k8s.io/code-generator
