@@ -1,11 +1,10 @@
-CODEGEN="vendor/k8s.io/code-generator"
 ROOT="github.com/ripta/kubectl-plugins"
 
 CRD_VERSION="v1alpha1"
 CRD_NAME="r8y"
 
-KUBERNETES_VERSION=1.25.3
-LIBRARY_VERSION=0.25.3
+KUBERNETES_VERSION=1.33.0
+LIBRARY_VERSION=0.33.0
 
 build:
 	go build -v -o bin/kubectl-dynaward ./cmd/kubectl-dynaward
@@ -18,9 +17,9 @@ hyper:
 update: update-deps update-codegen
 
 update-codegen:
-	[ -d $(CODEGEN) ] || git clone -b v$(LIBRARY_VERSION) https://github.com/kubernetes/code-generator vendor/k8s.io/code-generator
-	cd $(CODEGEN) && go install ./cmd/{defaulter-gen,deepcopy-gen}
-	deepcopy-gen --bounding-dirs . --input-dirs ./pkg/apis/r8y/v1alpha1 --output-base . --output-file-base zz_generated.deepcopy --go-header-file /dev/null
+	# go install k8s.io/code-generator/cmd/defaulter-gen@v${LIBRARY_VERSION}
+	go install k8s.io/code-generator/cmd/deepcopy-gen@v${LIBRARY_VERSION}
+	deepcopy-gen --output-file zz_generated.deepcopy.go --go-header-file /dev/null ./pkg/apis/r8y/v1alpha1
 
 update-deps:
 	go get k8s.io/client-go@v$(LIBRARY_VERSION)
