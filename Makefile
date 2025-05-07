@@ -8,6 +8,7 @@ KUBERNETES_VERSION=1.25.3
 LIBRARY_VERSION=0.25.3
 
 build:
+	go build -v -o bin/kubectl-dynaward ./cmd/kubectl-dynaward
 	go build -v -o bin/kubectl-show ./cmd/kubectl-show
 	go build -v -o bin/kubectl-ssh ./cmd/kubectl-ssh
 
