@@ -6,3 +6,4 @@ steps:
       - -c
       - |
         go test ./...
+        make hyper
