@@ -36,6 +36,9 @@ func (o *Options) Run(f cmdutil.Factory) error {
 	}()
 
 	logger.Info("Listening", "addr", o.Listen)
+	if o.Control {
+		logger.Info("Control endpoint enabled at http://" + o.Listen + "/")
+	}
 	return http.ListenAndServe(o.Listen, handler)
 }
 
