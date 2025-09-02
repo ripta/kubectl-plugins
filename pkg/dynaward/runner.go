@@ -36,6 +36,9 @@ func (o *Options) Run(f cmdutil.Factory) error {
 	}()
 
 	logger.Info("Listening", "addr", o.Listen)
+	if o.Control {
+		logger.Info("Control endpoint enabled at http://" + o.Listen + "/")
+	}
 	return http.ListenAndServe(o.Listen, handler)
 }
 
@@ -44,10 +47,14 @@ func (o *Options) controlIndex(w http.ResponseWriter, r *http.Request) {
 	fwd.mut.RLock()
 	defer fwd.mut.RUnlock()
 
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	fmt.Fprintf(w, "<html><head><title>kubectl-dynaward</title></head><body><pre>\n")
 	fmt.Fprintf(w, "[ %d active port-forwards ]\n", len(fwd.cache))
 	for host, fc := range fwd.cache {
 		fmt.Fprintf(w, "%s -> %s/%s:%d\n", host, fc.Namespace, fc.PodName, fc.PodPort)
 	}
+	fmt.Fprintf(w, "</pre></body></html>\n")
 }
 
 func (o *Options) wrapServe(logger *slog.Logger, f cmdutil.Factory) (http.HandlerFunc, func(), error) {

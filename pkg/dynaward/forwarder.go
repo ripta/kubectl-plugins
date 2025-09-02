@@ -93,7 +93,20 @@ func (fwd *ForwardPool) ConnectionFor(ctx context.Context, hostport string) (*Fo
 	}
 
 	fwd.cache[hostport] = conn
+	go fwd.monitorConnection(hostport, conn)
 	return conn, nil
+}
+
+func (fwd *ForwardPool) monitorConnection(hostport string, conn *ForwardConnection) {
+	select {
+	case <-conn.Conn.CloseChan():
+		fwd.mut.Lock()
+		defer fwd.mut.Unlock()
+		delete(fwd.cache, hostport)
+
+		fwd.Logger.Debug("Connection closed", "host:port", fmt.Sprintf("%s.%s:%s", conn.ServiceName, conn.Namespace, conn.ServicePort))
+		return
+	}
 }
 
 // newConnectionFor creates a new forwarding connection for a specific hostport
