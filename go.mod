@@ -11,7 +11,7 @@ require (
 	github.com/ripta/hypercmd v0.5.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
-	github.com/thediveo/enumflag/v2 v2.0.7
+	github.com/thediveo/enumflag/v2 v2.1.0
 	k8s.io/api v0.34.0-alpha.3
 	k8s.io/apimachinery v0.34.0-alpha.3
 	k8s.io/cli-runtime v0.34.0-alpha.3
@@ -71,7 +71,6 @@ require (
 	github.com/xlab/treeprint v1.2.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/exp v0.0.0-20250819193227-8b4c13bb791b // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
